@@ -14,10 +14,7 @@ namespace PShochu.Tests
             {
                 when("that script is invoked interactively", delegate
                 {
-                    then("he output file has a different process id than the current", delegate
-                    {
-                        
-                    });
+                    then("he output file has a different process id than the current");
                 });
             });
 
@@ -27,10 +24,7 @@ namespace PShochu.Tests
                 {
                     when("the script is invoked remotely", delegate
                     {
-                        then("the reported ip address and process id are different", delegate
-                        {
-                            
-                        });
+                        then("the reported ip address and process id are different");
                     });
                 });
             });

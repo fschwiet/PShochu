@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PShochu", "PShochu\PShochu.csproj", "{C7AF01B7-5F77-4FAF-8C7D-DBB9748C381D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PShochu.Tests", "PShochu.Tests\PShochu.Tests.csproj", "{DC7E78A7-0DAB-45FF-88CB-2E228BF7C2E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7AF01B7-5F77-4FAF-8C7D-DBB9748C381D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7AF01B7-5F77-4FAF-8C7D-DBB9748C381D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7AF01B7-5F77-4FAF-8C7D-DBB9748C381D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7AF01B7-5F77-4FAF-8C7D-DBB9748C381D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC7E78A7-0DAB-45FF-88CB-2E228BF7C2E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC7E78A7-0DAB-45FF-88CB-2E228BF7C2E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC7E78A7-0DAB-45FF-88CB-2E228BF7C2E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC7E78A7-0DAB-45FF-88CB-2E228BF7C2E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

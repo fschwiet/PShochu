@@ -10,7 +10,7 @@ namespace PShochu
 {
     public class ProcessHandling
     {
-        public static void InvokeScript(string moduleLocation, string scriptPath, Action<string> onConsoleOut, Action<string> onErrorOut)
+        public static int InvokeScript(string moduleLocation, string scriptPath, Action<string> onConsoleOut, Action<string> onErrorOut)
         {
             var psakeModulePath = Path.Combine(new DirectoryInfo(moduleLocation).FullName, "psake.psm1");
             var psakeScriptPath = new FileInfo(scriptPath).FullName;
@@ -53,6 +53,8 @@ namespace PShochu
                 }
 
                 process.WaitForExit();
+
+                return process.ExitCode;
             }
         }
     }

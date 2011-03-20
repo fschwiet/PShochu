@@ -51,7 +51,7 @@ namespace PShochu.Tests
                 when("that script is invoked interactively", delegate
                 {
                     InvokeResult invocation = arrange(() =>
-                                                      ProcessHandling.InvokeScript(Path.Combine(".", psakeModuleLocation), scriptPath));
+                                                      ProcessHandling.InvokeScript(Path.Combine(".", psakeModuleLocation), scriptPath, "Fails"));
 
                     then("the exit code indicates failure", delegate
                     {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using PShochu.Util;
 
 namespace PShochu
 {
@@ -56,6 +57,52 @@ namespace PShochu
 
                 return process.ExitCode;
             }
+        }
+
+        public static InvokeResult InvokeScript(string moduleLocation, string scriptPath)
+        {
+            InvokeResult result = null;
+            int? exitCode = null;
+
+            var consoleStream = new MemoryStream();
+            var errorStream = new MemoryStream();
+
+            try
+            {
+                using(var consoleWriter = new NonclosingStreamWriter(consoleStream))
+                using(var errorWriter = new NonclosingStreamWriter(errorStream))
+                {
+                    exitCode = InvokeScript(moduleLocation, scriptPath, consoleWriter.WriteLine,errorWriter.WriteLine);
+
+                    consoleWriter.Flush();
+                    errorWriter.Flush();
+
+                    consoleStream.Seek(0, SeekOrigin.Begin);
+                    errorStream.Seek(0, SeekOrigin.Begin);
+
+                    var consoleOutput =
+                        new NonclosingStreamReader(consoleStream).ReadToEnd().Split(new[] { consoleWriter.NewLine },
+                            StringSplitOptions.None);
+
+                    var errorOutput =
+                        new NonclosingStreamReader(errorStream).ReadToEnd().Split(new[] { consoleWriter.NewLine },
+                            StringSplitOptions.None);
+
+                    result = new InvokeResult(consoleStream, errorStream, consoleOutput, errorOutput, exitCode);
+                    consoleStream = null;
+                    errorStream = null;
+                }
+            }
+            finally
+            {
+                if (consoleStream != null)
+                    consoleStream.Dispose();
+                
+                if (errorStream != null)
+                    errorStream.Dispose();
+            }
+
+            return result;
         }
     }
 }

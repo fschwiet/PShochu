@@ -28,7 +28,7 @@ namespace PShochu
             arguments.Append(String.Format(@"import-module ""{0}"";", psakeModulePath));
             arguments.Append(String.Format(@"invoke-psake ""{0}"" {1};", psakeScriptPath, taskName));
 
-            psi.Arguments = arguments.ToString();
+            psi.Arguments = "-EncodedCommand " + Base64Encode(arguments.ToString());
 
             using(var process = Process.Start(psi))
             {
@@ -104,6 +104,12 @@ namespace PShochu
             }
 
             return result;
+        }
+
+        public static string Base64Encode(string input)
+        {
+            var bytes = System.Text.Encoding.Unicode.GetBytes(input);
+            return System.Convert.ToBase64String(bytes);
         }
     }
 }

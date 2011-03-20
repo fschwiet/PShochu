@@ -53,6 +53,11 @@ namespace PShochu.Tests
                     InvokeResult invocation = arrange(() =>
                                                       ProcessHandling.InvokeScript(Path.Combine(".", psakeModuleLocation), scriptPath));
 
+                    then("the exit code indicates failure", delegate
+                    {
+                        expect(() => invocation.ExitCode == 123);
+                    });
+
                     then("the error output has the expected error string", delegate
                     {
                         var allLines = invocation.ErrorOutput;
@@ -61,9 +66,10 @@ namespace PShochu.Tests
 
                         foreach (var line in allLines)
                         {
-                            Console.WriteLine(line);
+                            Console.WriteLine("error: " + line);
                         }
 
+                        expect(() => allLines.Any(l => "Hello, world".Equals(l)));
                     });
                 });
             });
@@ -81,6 +87,17 @@ namespace PShochu.Tests
                     then("the other tasks output is seen", delegate
                     {
                         expect(() => invocation.ConsoleOutput.Any(l => l.Equals("Another task")));
+                    });
+                });
+            });
+
+            given("a different user account", delegate
+            {
+                given("a script that prints the accounts username", delegate
+                {
+                    when("that script is invoked interactively", delegate
+                    {
+                        then("the script output is the user account's username ");
                     });
                 });
             });

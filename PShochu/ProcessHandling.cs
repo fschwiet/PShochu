@@ -22,6 +22,7 @@ namespace PShochu
             psi.UseShellExecute = false;
             psi.RedirectStandardError = true;
             psi.RedirectStandardOutput = true;
+            psi.CreateNoWindow = true;
 
             StringBuilder arguments = new StringBuilder();
             arguments.Append(String.Format(@"import-module ""{0}"";", psakeModulePath));

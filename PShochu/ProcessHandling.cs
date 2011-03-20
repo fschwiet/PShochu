@@ -11,7 +11,7 @@ namespace PShochu
 {
     public class ProcessHandling
     {
-        public static int InvokeScript(string moduleLocation, string scriptPath, Action<string> onConsoleOut, Action<string> onErrorOut)
+        public static int InvokeScript(string moduleLocation, string scriptPath, string taskName, Action<string> onConsoleOut, Action<string> onErrorOut)
         {
             var psakeModulePath = Path.Combine(new DirectoryInfo(moduleLocation).FullName, "psake.psm1");
             var psakeScriptPath = new FileInfo(scriptPath).FullName;
@@ -25,7 +25,7 @@ namespace PShochu
 
             StringBuilder arguments = new StringBuilder();
             arguments.Append(String.Format(@"import-module ""{0}"";", psakeModulePath));
-            arguments.Append(String.Format(@"invoke-psake ""{0}"";", psakeScriptPath));
+            arguments.Append(String.Format(@"invoke-psake ""{0}"" {1};", psakeScriptPath, taskName));
 
             psi.Arguments = arguments.ToString();
 
@@ -59,7 +59,7 @@ namespace PShochu
             }
         }
 
-        public static InvokeResult InvokeScript(string moduleLocation, string scriptPath)
+        public static InvokeResult InvokeScript(string moduleLocation, string scriptPath, string taskName = "default")
         {
             InvokeResult result = null;
             int? exitCode = null;
@@ -72,7 +72,7 @@ namespace PShochu
                 using(var consoleWriter = new NonclosingStreamWriter(consoleStream))
                 using(var errorWriter = new NonclosingStreamWriter(errorStream))
                 {
-                    exitCode = InvokeScript(moduleLocation, scriptPath, consoleWriter.WriteLine,errorWriter.WriteLine);
+                    exitCode = InvokeScript(moduleLocation, scriptPath, taskName, consoleWriter.WriteLine, errorWriter.WriteLine);
 
                     consoleWriter.Flush();
                     errorWriter.Flush();

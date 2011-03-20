@@ -68,6 +68,23 @@ namespace PShochu.Tests
                 });
             });
 
+            given("a non-default psake script", delegate
+            {
+                var scriptPath = GetVerifiedPathOfTestScript("task_writes_process_id.ps1");
+
+                when("that script is invoked interactively", delegate
+                {
+                    InvokeResult invocation = arrange(() =>
+                                                      ProcessHandling.InvokeScript(
+                                                          Path.Combine(".", psakeModuleLocation), scriptPath, "Other"));
+
+                    then("the other tasks output is seen", delegate
+                    {
+                        expect(() => invocation.ConsoleOutput.Any(l => l.Equals("Another task")));
+                    });
+                });
+            });
+
             given("a vhd image (64bit?  32bit?)", delegate
             {
                 given("a psake script that writes its IP address and process id", delegate

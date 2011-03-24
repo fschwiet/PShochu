@@ -25,7 +25,7 @@ namespace PShochu.Tests.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("tools\\psake")]
+        [global::System.Configuration.DefaultSettingValueAttribute("..\\..\\..\\tools\\psake\\psake.psm1")]
         public string PsakeModulePath {
             get {
                 return ((string)(this["PsakeModulePath"]));

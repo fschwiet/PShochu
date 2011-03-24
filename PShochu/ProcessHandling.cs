@@ -13,7 +13,6 @@ namespace PShochu
     {
         public static int InvokeScript(string moduleLocation, string scriptPath, string taskName, Action<string> onConsoleOut, Action<string> onErrorOut)
         {
-            var psakeModulePath = Path.Combine(new DirectoryInfo(moduleLocation).FullName, "psake.psm1");
             var psakeScriptPath = new FileInfo(scriptPath).FullName;
 
             ProcessStartInfo psi = new ProcessStartInfo();
@@ -25,10 +24,10 @@ namespace PShochu
             psi.CreateNoWindow = true;
 
             StringBuilder arguments = new StringBuilder();
-            arguments.Append(String.Format(@"import-module ""{0}"";", psakeModulePath));
+            arguments.Append(String.Format(@"import-module ""{0}"";", moduleLocation));
             arguments.Append(String.Format(@"invoke-psake ""{0}"" {1};", psakeScriptPath, taskName));
 
-            psi.Arguments = "-EncodedCommand " + Base64Encode(arguments.ToString());
+            psi.Arguments = "-NoProfile -Noninteractive -EncodedCommand " + Base64Encode(arguments.ToString());
 
             using(var process = Process.Start(psi))
             {

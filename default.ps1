@@ -2,7 +2,7 @@
 properties {
     $rootPath = (resolve-path .).path
     $buildDirectory = "$rootPath\Build"
-    $psakeModulePath = "tools\psake"
+    $psakeModulePath = "$rootPath\tools\psake\psake.psm1"
 }
 
 import-module .\tools\PSUpdateXml\PSUpdateXml.psm1
@@ -32,7 +32,7 @@ task Build -depends Verify40, Clean {
 task Configure {
 
     update-xml "$buildDirectory\PShochu.Tests.dll.config" {
-        set-xml "//setting[@name='PsakeModulePath']/value" "tools\psake"
+        set-xml "//setting[@name='PsakeModulePath']/value" $psakeModulePath
     }
 }
 

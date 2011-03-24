@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="PsakeModulePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">tools\psake</Value>
+      <Value Profile="(Default)">..\..\..\tools\psake\psake.psm1</Value>
     </Setting>
   </Settings>
 </SettingsFile>

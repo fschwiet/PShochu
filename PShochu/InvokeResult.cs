@@ -29,14 +29,14 @@ namespace PShochu
             ErrorStream.Dispose();
         }
 
-        public static void TraceToConsole(InvokeResult invocation)
+        public void TraceToConsole()
         {
             Console.WriteLine("CONSOLE OUTPUT");
-            foreach (var o in invocation.ConsoleOutput)
+            foreach (var o in ConsoleOutput)
                 Console.WriteLine(o);
 
             Console.WriteLine("ERROR OUTPUT");
-            foreach (var o in invocation.ErrorOutput)
+            foreach (var o in this.ErrorOutput)
                 Console.WriteLine(o);
         }
     }

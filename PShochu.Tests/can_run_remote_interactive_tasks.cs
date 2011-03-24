@@ -14,8 +14,6 @@ namespace PShochu.Tests
     {
         public override void Specify()
         {
-            var psakeModuleLocation = Properties.Settings.Default.PsakeModulePath;
-
             given("a psake script which writes the current process id to output", delegate
             {
                 string scriptPath = GetVerifiedPathOfTestScript("task_writes_process_id.ps1");
@@ -23,10 +21,12 @@ namespace PShochu.Tests
                 when("that script is invoked interactively", delegate
                 {
                     InvokeResult invocation = arrange(() =>
-                                                      ProcessHandling.InvokeScript(Path.Combine(".", psakeModuleLocation), scriptPath));
+                                                      ProcessHandling.InvokeScript(GetModuleLocation(), scriptPath));
 
                     then("the script succeeds", delegate
                     {
+                        invocation.TraceToConsole();
+
                         expect(() => invocation.ExitCode == 0);
                     });
 
@@ -51,7 +51,7 @@ namespace PShochu.Tests
                 when("that script is invoked interactively", delegate
                 {
                     InvokeResult invocation = arrange(() =>
-                                                      ProcessHandling.InvokeScript(Path.Combine(".", psakeModuleLocation), scriptPath, "Fails"));
+                                                      ProcessHandling.InvokeScript(GetModuleLocation(), scriptPath, "Fails"));
 
                     then("the exit code indicates failure", delegate
                     {
@@ -74,8 +74,7 @@ namespace PShochu.Tests
                 when("that script is invoked interactively", delegate
                 {
                     InvokeResult invocation = arrange(() =>
-                                                      ProcessHandling.InvokeScript(
-                                                          Path.Combine(".", psakeModuleLocation), scriptPath, "Other"));
+                                                      ProcessHandling.InvokeScript(GetModuleLocation(), scriptPath, "Other"));
 
                     then("the other tasks output is seen", delegate
                     {
@@ -105,6 +104,13 @@ namespace PShochu.Tests
                     });
                 });
             });
+        }
+
+        private string GetModuleLocation()
+        {
+            string moduleLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Properties.Settings.Default.PsakeModulePath);
+            moduleLocation = new FileInfo(moduleLocation).FullName;
+            return moduleLocation;
         }
 
         private string GetVerifiedPathOfTestScript(string psakeScript)

@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdvApi32PInvoke.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="InvokeResult.cs" />
     <Compile Include="ProcessHandling.cs" />

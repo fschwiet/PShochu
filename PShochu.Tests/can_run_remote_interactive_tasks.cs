@@ -80,7 +80,9 @@ namespace PShochu.Tests
                 {
                     when("that script is invoked interactively", delegate
                     {
-                        then("the script output is the user account's username ");
+                        then("the script output is the user account's username");
+
+                        then("the script can interact with a desktop");
                     });
                 });
             });

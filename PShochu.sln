@@ -5,6 +5,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PShochu", "PShochu\PShochu.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PShochu.Tests", "PShochu.Tests\PShochu.Tests.csproj", "{DC7E78A7-0DAB-45FF-88CB-2E228BF7C2E8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{21872656-DCAF-4B64-9715-C358004772B5}"
+	ProjectSection(SolutionItems) = preProject
+		default.ps1 = default.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

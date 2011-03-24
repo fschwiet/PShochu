@@ -28,5 +28,16 @@ namespace PShochu
             ConsoleStream.Dispose();
             ErrorStream.Dispose();
         }
+
+        public static void TraceToConsole(InvokeResult invocation)
+        {
+            Console.WriteLine("CONSOLE OUTPUT");
+            foreach (var o in invocation.ConsoleOutput)
+                Console.WriteLine(o);
+
+            Console.WriteLine("ERROR OUTPUT");
+            foreach (var o in invocation.ErrorOutput)
+                Console.WriteLine(o);
+        }
     }
 }

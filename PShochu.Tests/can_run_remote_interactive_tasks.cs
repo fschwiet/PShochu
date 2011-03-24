@@ -62,13 +62,6 @@ namespace PShochu.Tests
                     {
                         var allLines = invocation.ErrorOutput;
 
-                        Console.WriteLine("Last exit code:" + invocation.ExitCode);
-
-                        foreach (var line in allLines)
-                        {
-                            Console.WriteLine("error: " + line);
-                        }
-
                         expect(() => allLines.Any(l => "Hello, world".Equals(l)));
                     });
                 });

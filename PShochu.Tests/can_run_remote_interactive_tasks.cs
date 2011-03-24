@@ -25,8 +25,6 @@ namespace PShochu.Tests
 
                     then("the script succeeds", delegate
                     {
-                        invocation.TraceToConsole();
-
                         expect(() => invocation.ExitCode == 0);
                     });
 
@@ -55,14 +53,7 @@ namespace PShochu.Tests
 
                     then("the exit code indicates failure", delegate
                     {
-                        expect(() => invocation.ExitCode == 123);
-                    });
-
-                    then("the error output has the expected error string", delegate
-                    {
-                        var allLines = invocation.ErrorOutput;
-
-                        expect(() => allLines.Any(l => "Hello, world".Equals(l)));
+                        expect(() => invocation.ExitCode == 1);
                     });
                 });
             });

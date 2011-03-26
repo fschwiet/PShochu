@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using PShochu.PInvoke;
 using PShochu.Util;
 
 namespace PShochu
@@ -13,8 +16,6 @@ namespace PShochu
     {
         public static int InvokeScript(string moduleLocation, string scriptPath, string taskName, Action<string> onConsoleOut, Action<string> onErrorOut)
         {
-            var psakeScriptPath = new FileInfo(scriptPath).FullName;
-
             ProcessStartInfo psi = new ProcessStartInfo();
 
             psi.FileName = "powershell";
@@ -23,11 +24,7 @@ namespace PShochu
             psi.RedirectStandardOutput = true;
             psi.CreateNoWindow = true;
 
-            StringBuilder arguments = new StringBuilder();
-            arguments.Append(String.Format(@"import-module ""{0}"";", moduleLocation));
-            arguments.Append(String.Format(@"invoke-psake ""{0}"" {1};", psakeScriptPath, taskName));
-
-            psi.Arguments = "-NoProfile -Noninteractive -EncodedCommand " + Base64Encode(arguments.ToString());
+            psi.Arguments = GetPowershellArguments(moduleLocation, scriptPath, taskName);
 
             using(var process = Process.Start(psi))
             {
@@ -57,6 +54,17 @@ namespace PShochu
 
                 return process.ExitCode;
             }
+        }
+
+        private static string GetPowershellArguments(string moduleLocation, string scriptPath, string taskName)
+        {
+            var psakeScriptPath = new FileInfo(scriptPath).FullName;
+
+            StringBuilder arguments = new StringBuilder();
+            arguments.Append(String.Format(@"import-module ""{0}"";", moduleLocation));
+            arguments.Append(String.Format(@"invoke-psake ""{0}"" {1};", psakeScriptPath, taskName));
+
+            return "-NoProfile -Noninteractive -EncodedCommand " + Base64Encode(arguments.ToString());
         }
 
         public static InvokeResult InvokeScript(string moduleLocation, string scriptPath, string taskName = "default")

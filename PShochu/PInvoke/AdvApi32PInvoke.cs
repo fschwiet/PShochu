@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
-namespace PShochu
+namespace PShochu.PInvoke
 {
     public class AdvApi32PInvoke
     {
@@ -83,19 +80,12 @@ namespace PShochu
             LOGON32_PROVIDER_DEFAULT = 0,
         }
 
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern bool CreateProcessWithLogonW(
-           String userName,
-           String domain,
-           String password,
-           LogonFlags logonFlags,
-           String applicationName,
-           String commandLine,
-           CreationFlags creationFlags,
-           UInt32 environment,
-           String currentDirectory,
-           ref STARTUPINFO startupInfo,
-           out PROCESS_INFORMATION processInformation);
+        [DllImport("advapi32", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern bool CreateProcessWithTokenW(IntPtr hToken, LogonFlags dwLogonFlags,
+                                                          string lpApplicationName, string lpCommandLine,
+                                                          int dwCreationFlags, IntPtr lpEnvironment,
+                                                          IntPtr lpCurrentDirectory, [In] ref STARTUPINFO lpStartupInfo,
+                                                          out PROCESS_INFORMATION lpProcessInformation);
 
         [Flags]
         public enum CreationFlags
@@ -138,6 +128,9 @@ namespace PShochu
             public IntPtr hStdError;
         }
 
+        public const int STARTF_USESTDHANDLES = 0x00000100;
+        public const int CREATE_NO_WINDOW = 0x08000000;
+
         [StructLayout(LayoutKind.Sequential)]
         public struct PROCESS_INFORMATION
         {
@@ -145,6 +138,63 @@ namespace PShochu
             public IntPtr hThread;
             public int dwProcessId;
             public int dwThreadId;
+        }
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        public static extern bool OpenThreadToken(
+            IntPtr ThreadHandle,
+            uint DesiredAccess,
+            bool OpenAsSelf,
+            out IntPtr TokenHandle);
+
+        //Use these for DesiredAccess
+        public const UInt32 STANDARD_RIGHTS_REQUIRED = 0x000F0000;
+        public const UInt32 STANDARD_RIGHTS_READ = 0x00020000;
+        public const UInt32 TOKEN_ASSIGN_PRIMARY = 0x0001;
+        public const UInt32 TOKEN_DUPLICATE = 0x0002;
+        public const UInt32 TOKEN_IMPERSONATE = 0x0004;
+        public const UInt32 TOKEN_QUERY = 0x0008;
+        public const UInt32 TOKEN_QUERY_SOURCE = 0x0010;
+        public const UInt32 TOKEN_ADJUST_PRIVILEGES = 0x0020;
+        public const UInt32 TOKEN_ADJUST_GROUPS = 0x0040;
+        public const UInt32 TOKEN_ADJUST_DEFAULT = 0x0080;
+        public const UInt32 TOKEN_ADJUST_SESSIONID = 0x0100;
+        public const UInt32 TOKEN_READ = (STANDARD_RIGHTS_READ | TOKEN_QUERY);
+        public const UInt32 TOKEN_ALL_ACCESS = (STANDARD_RIGHTS_REQUIRED | TOKEN_ASSIGN_PRIMARY |
+            TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | TOKEN_QUERY_SOURCE |
+            TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_DEFAULT |
+            TOKEN_ADJUST_SESSIONID);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public extern static bool DuplicateTokenEx(
+            IntPtr hExistingToken,
+            uint dwDesiredAccess,
+            ref SECURITY_ATTRIBUTES lpTokenAttributes,
+            SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
+            TOKEN_TYPE TokenType,
+            out IntPtr phNewToken);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SECURITY_ATTRIBUTES
+        {
+            public int nLength;
+            //public unsafe byte* lpSecurityDescriptor;
+            public IntPtr bugbugShouldBeUnsafelpSecurityDescriptor;
+            public bool bInheritHandle;
+        }
+
+        public enum SECURITY_IMPERSONATION_LEVEL
+        {
+            SecurityAnonymous,
+            SecurityIdentification,
+            SecurityImpersonation,
+            SecurityDelegation
+        }
+
+        public enum TOKEN_TYPE
+        {
+            TokenPrimary = 1,
+            TokenImpersonation
         }
     }
 }

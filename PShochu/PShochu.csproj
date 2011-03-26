@@ -43,7 +43,7 @@
     <Compile Include="InvokeResult.cs" />
     <Compile Include="PInvoke\AdvApi32PInvoke.cs" />
     <Compile Include="PInvoke\Kernel32.cs" />
-    <Compile Include="PInvoke\NetWrappers\Process.cs" />
+    <Compile Include="PInvoke\NetWrappers\ProcessUtil.cs" />
     <Compile Include="PInvoke\NetWrappers\SafeProcessHandle.cs" />
     <Compile Include="PInvoke\Win32Pipe.cs" />
     <Compile Include="ProcessHandling.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,9 +10,9 @@ using Microsoft.Win32.SafeHandles;
 
 namespace PShochu.PInvoke.NetWrappers
 {
-    public class Process
+    public class ProcessUtil
     {
-        private System.Diagnostics.Process CreateProcessWithToken(
+        private Process CreateProcessWithToken(
             IntPtr userPrincipalToken, string applicationName, string applicationCommand, bool dontCreateWindow, bool createWithProfile,
             out StreamReader consoleOutput, out StreamReader errorOutput)
         {
@@ -44,16 +45,16 @@ namespace PShochu.PInvoke.NetWrappers
             {
                 int lastWin32Error = Marshal.GetLastWin32Error();
 
-                if (lastWin32Error == 0xc1)  // foudn in Process.StartWithCreateProcess
+                if (lastWin32Error == 0xc1)  // found in Process.StartWithCreateProcess
                     throw new Win32Exception("Invalid application");
 
                 throw new Win32Exception(lastWin32Error);
             }
 
-            var setProcessHandleMethod = typeof(System.Diagnostics.Process).GetMethod("SetProcessHandle", BindingFlags.NonPublic);
-            var setProcessIdMethod = typeof(System.Diagnostics.Process).GetMethod("SetProcessInfo", BindingFlags.NonPublic);
+            var setProcessHandleMethod = typeof(Process).GetMethod("SetProcessHandle", BindingFlags.NonPublic);
+            var setProcessIdMethod = typeof(Process).GetMethod("SetProcessInfo", BindingFlags.NonPublic);
 
-            var result = new System.Diagnostics.Process();
+            var result = new Process();
             setProcessHandleMethod.Invoke(result, new object[] { lpProcessInformation.hProcess});
             setProcessIdMethod.Invoke(result, new object[] { lpProcessInformation.dwProcessId});
 

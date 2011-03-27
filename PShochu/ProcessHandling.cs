@@ -15,8 +15,8 @@ namespace PShochu
     {
         public static ConsoleApplicationResult RunNoninteractiveConsoleProcess(string command, string commandArguments)
         {
-            ConsoleApplicationResult result = null;
-            int exitCode;
+            ConsoleApplicationResultStreams resultStreams;
+            string newLine;
 
             var consoleStream = new MemoryStream();
             var errorStream = new MemoryStream();
@@ -26,7 +26,7 @@ namespace PShochu
                 using(var consoleWriter = new NonclosingStreamWriter(consoleStream))
                 using(var errorWriter = new NonclosingStreamWriter(errorStream))
                 {
-                    exitCode = RunNoninteractiveConsoleProcess(command, commandArguments, consoleWriter.WriteLine, errorWriter.WriteLine);
+                    var exitCode = RunNoninteractiveConsoleProcess(command, commandArguments, consoleWriter.WriteLine, errorWriter.WriteLine);
 
                     consoleWriter.Flush();
                     errorWriter.Flush();
@@ -36,7 +36,8 @@ namespace PShochu
 
                     var consoleApplicationResultStreams = new ConsoleApplicationResultStreams(consoleStream, errorStream, exitCode);
 
-                    result = ConsoleApplicationResult.LoadConsoleOutput(consoleApplicationResultStreams, consoleWriter.NewLine);
+                    resultStreams = consoleApplicationResultStreams;
+                    newLine = consoleWriter.NewLine;
 
                     consoleStream = null;
                     errorStream = null;
@@ -51,7 +52,7 @@ namespace PShochu
                     errorStream.Dispose();
             }
 
-            return result;
+            return ConsoleApplicationResult.LoadConsoleOutput(resultStreams, newLine);
         }
 
         public static int RunNoninteractiveConsoleProcess(string command, string commandArguments, Action<string> onConsoleOut, Action<string> onErrorOut)

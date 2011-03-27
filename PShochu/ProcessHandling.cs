@@ -15,86 +15,84 @@ namespace PShochu
     {
         public static ConsoleApplicationResult RunNoninteractiveConsoleProcess(string command, string commandArguments)
         {
-            ConsoleApplicationResultStreams resultStreams;
             string newLine;
 
+            var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams(command, commandArguments, out newLine);
+
+            return ConsoleApplicationResult.LoadConsoleOutput(consoleStreamsResult, newLine);
+        }
+
+        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams(string command, string commandArguments, out string newLine)
+        {
             var consoleStream = new MemoryStream();
             var errorStream = new MemoryStream();
 
             try
             {
-                using(var consoleWriter = new NonclosingStreamWriter(consoleStream))
-                using(var errorWriter = new NonclosingStreamWriter(errorStream))
+                using (var consoleWriter = new NonclosingStreamWriter(consoleStream))
+                using (var errorWriter = new NonclosingStreamWriter(errorStream))
                 {
-                    var exitCode = RunNoninteractiveConsoleProcess(command, commandArguments, consoleWriter.WriteLine, errorWriter.WriteLine);
+                    ProcessStartInfo psi = new ProcessStartInfo();
 
-                    consoleWriter.Flush();
-                    errorWriter.Flush();
+                    psi.FileName = command;
+                    psi.UseShellExecute = false;
+                    psi.RedirectStandardError = true;
+                    psi.RedirectStandardOutput = true;
+                    psi.CreateNoWindow = true;
 
-                    consoleStream.Seek(0, SeekOrigin.Begin);
-                    errorStream.Seek(0, SeekOrigin.Begin);
+                    psi.Arguments = commandArguments;
 
-                    var consoleApplicationResultStreams = new ConsoleApplicationResultStreams(consoleStream, errorStream, exitCode);
+                    using (var process = Process.Start(psi))
+                    {
+                        try
+                        {
+                            process.OutputDataReceived += delegate(object sendingProcess, DataReceivedEventArgs errorEvent)
+                            {
+                                consoleWriter.WriteLine(errorEvent.Data);
+                            };
 
-                    resultStreams = consoleApplicationResultStreams;
-                    newLine = consoleWriter.NewLine;
+                            process.ErrorDataReceived += delegate(object sendingProcess, DataReceivedEventArgs errorEvent)
+                            {
+                                errorWriter.WriteLine(errorEvent.Data);
+                            };
 
-                    consoleStream = null;
-                    errorStream = null;
+                            process.BeginOutputReadLine();
+                            process.BeginErrorReadLine();
+
+                            process.WaitForExit();
+                        }
+                        catch (Exception e)
+                        {
+                            process.Kill();
+                        }
+
+                        process.WaitForExit();
+
+                        consoleWriter.Flush();
+                        errorWriter.Flush();
+
+                        consoleStream.Seek(0, SeekOrigin.Begin);
+                        errorStream.Seek(0, SeekOrigin.Begin);
+
+                        var result = new ConsoleApplicationResultStreams(consoleStream, errorStream, process.ExitCode);
+                        consoleStream = null;
+                        errorStream = null;
+
+                        newLine = consoleWriter.NewLine;
+
+                        return result;
+                    }
                 }
             }
             finally
             {
                 if (consoleStream != null)
                     consoleStream.Dispose();
-                
+
                 if (errorStream != null)
                     errorStream.Dispose();
             }
 
-            return ConsoleApplicationResult.LoadConsoleOutput(resultStreams, newLine);
-        }
-
-        public static int RunNoninteractiveConsoleProcess(string command, string commandArguments, Action<string> onConsoleOut, Action<string> onErrorOut)
-        {
-            ProcessStartInfo psi = new ProcessStartInfo();
-
-            psi.FileName = command;
-            psi.UseShellExecute = false;
-            psi.RedirectStandardError = true;
-            psi.RedirectStandardOutput = true;
-            psi.CreateNoWindow = true;
-
-            psi.Arguments = commandArguments;
-
-            using(var process = Process.Start(psi))
-            {
-                try
-                {
-                    process.OutputDataReceived += delegate(object sendingProcess, DataReceivedEventArgs errorEvent)
-                    {
-                        onConsoleOut(errorEvent.Data);
-                    };
-
-                    process.ErrorDataReceived += delegate(object sendingProcess, DataReceivedEventArgs errorEvent)
-                    {
-                        onErrorOut(errorEvent.Data);
-                    };
-
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-
-                    process.WaitForExit();
-                }
-                catch(Exception e)
-                {
-                    process.Kill();
-                }
-
-                process.WaitForExit();
-
-                return process.ExitCode;
-            }
         }
     }
 }

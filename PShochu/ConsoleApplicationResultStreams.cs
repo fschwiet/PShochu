@@ -7,9 +7,9 @@ namespace PShochu
     {
         public Stream ConsoleStream;
         public Stream ErrorStream;
-        public int? ExitCode;
+        public int ExitCode;
 
-        public ConsoleApplicationResultStreams(MemoryStream consoleStream, MemoryStream errorStream, int? exitCode)
+        public ConsoleApplicationResultStreams(Stream consoleStream, Stream errorStream, int exitCode)
         {
             ConsoleStream = consoleStream;
             ErrorStream = errorStream;

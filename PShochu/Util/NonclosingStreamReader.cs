@@ -4,7 +4,8 @@ namespace PShochu.Util
 {
     public class NonclosingStreamReader : StreamReader
     {
-        public NonclosingStreamReader(MemoryStream stream) : base(stream)
+        public NonclosingStreamReader(Stream stream)
+            : base(stream)
         {
         }
 

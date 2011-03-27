@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using PShochu.Util;
 
 namespace PShochu
 {
-    public class ConsoleApplicationResult : ConsoleApplicationResultStreams
+    public class ConsoleApplicationResult
     {
+        public int ExitCode;
         public readonly IEnumerable<string> ConsoleOutput;
         public readonly IEnumerable<string> ErrorOutput;
 
-        public ConsoleApplicationResult(MemoryStream consoleStream, MemoryStream errorStream, string[] consoleOutput, string[] errorOutput, int? exitCode)
-            : base(consoleStream, errorStream, exitCode)
+        public ConsoleApplicationResult(string[] consoleOutput, string[] errorOutput, int exitCode)
         {
+            ExitCode = exitCode;
             ConsoleOutput = consoleOutput;
             ErrorOutput = errorOutput;
         }
@@ -28,20 +28,17 @@ namespace PShochu
                 Console.WriteLine(o);
         }
 
-        public static ConsoleApplicationResult LoadConsoleOutput(MemoryStream consoleStream, MemoryStream errorStream, NonclosingStreamWriter consoleWriter, int? exitCode)
+        public static ConsoleApplicationResult LoadConsoleOutput(ConsoleApplicationResultStreams resultStreams, string newline)
         {
-            ConsoleApplicationResult result;
             var consoleOutput =
-                new NonclosingStreamReader(consoleStream).ReadToEnd().Split(new[] { consoleWriter.NewLine },
+                new NonclosingStreamReader(resultStreams.ConsoleStream).ReadToEnd().Split(new[] { newline },
                     StringSplitOptions.None);
 
             var errorOutput =
-                new NonclosingStreamReader(errorStream).ReadToEnd().Split(new[] { consoleWriter.NewLine },
+                new NonclosingStreamReader(resultStreams.ErrorStream).ReadToEnd().Split(new[] { newline },
                     StringSplitOptions.None);
 
-            result = new ConsoleApplicationResult(consoleStream, errorStream, consoleOutput, errorOutput, exitCode);
-
-            return result;
+            return new ConsoleApplicationResult(consoleOutput, errorOutput, resultStreams.ExitCode);
         }
     }
 }

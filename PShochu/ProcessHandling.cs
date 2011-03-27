@@ -16,7 +16,7 @@ namespace PShochu
         public static ConsoleApplicationResult RunNoninteractiveConsoleProcess(string command, string commandArguments)
         {
             ConsoleApplicationResult result = null;
-            int? exitCode = null;
+            int exitCode;
 
             var consoleStream = new MemoryStream();
             var errorStream = new MemoryStream();
@@ -34,7 +34,9 @@ namespace PShochu
                     consoleStream.Seek(0, SeekOrigin.Begin);
                     errorStream.Seek(0, SeekOrigin.Begin);
 
-                    result = ConsoleApplicationResult.LoadConsoleOutput(consoleStream, errorStream, consoleWriter, exitCode);
+                    var consoleApplicationResultStreams = new ConsoleApplicationResultStreams(consoleStream, errorStream, exitCode);
+
+                    result = ConsoleApplicationResult.LoadConsoleOutput(consoleApplicationResultStreams, consoleWriter.NewLine);
 
                     consoleStream = null;
                     errorStream = null;

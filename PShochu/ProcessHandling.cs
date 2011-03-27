@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using PShochu.PInvoke;
 using PShochu.Util;
@@ -14,9 +13,9 @@ namespace PShochu
 {
     public class ProcessHandling
     {
-        public static InvokeResult InvokeScript(string moduleLocation, string scriptPath, string taskName = "default")
+        public static ConsoleApplicationResult RunNoninteractiveConsoleProcess(string command, string commandArguments)
         {
-            InvokeResult result = null;
+            ConsoleApplicationResult result = null;
             int? exitCode = null;
 
             var consoleStream = new MemoryStream();
@@ -27,7 +26,7 @@ namespace PShochu
                 using(var consoleWriter = new NonclosingStreamWriter(consoleStream))
                 using(var errorWriter = new NonclosingStreamWriter(errorStream))
                 {
-                    exitCode = InvokeScript(moduleLocation, scriptPath, taskName, consoleWriter.WriteLine, errorWriter.WriteLine);
+                    exitCode = RunNoninteractiveConsoleProcess(command, commandArguments, consoleWriter.WriteLine, errorWriter.WriteLine);
 
                     consoleWriter.Flush();
                     errorWriter.Flush();
@@ -43,7 +42,7 @@ namespace PShochu
                         new NonclosingStreamReader(errorStream).ReadToEnd().Split(new[] { consoleWriter.NewLine },
                             StringSplitOptions.None);
 
-                    result = new InvokeResult(consoleStream, errorStream, consoleOutput, errorOutput, exitCode);
+                    result = new ConsoleApplicationResult(consoleStream, errorStream, consoleOutput, errorOutput, exitCode);
                     consoleStream = null;
                     errorStream = null;
                 }
@@ -60,17 +59,17 @@ namespace PShochu
             return result;
         }
 
-        public static int InvokeScript(string moduleLocation, string scriptPath, string taskName, Action<string> onConsoleOut, Action<string> onErrorOut)
+        public static int RunNoninteractiveConsoleProcess(string command, string commandArguments, Action<string> onConsoleOut, Action<string> onErrorOut)
         {
             ProcessStartInfo psi = new ProcessStartInfo();
 
-            psi.FileName = "powershell";
+            psi.FileName = command;
             psi.UseShellExecute = false;
             psi.RedirectStandardError = true;
             psi.RedirectStandardOutput = true;
             psi.CreateNoWindow = true;
 
-            psi.Arguments = GetPowershellArguments(moduleLocation, scriptPath, taskName);
+            psi.Arguments = commandArguments;
 
             using(var process = Process.Start(psi))
             {
@@ -100,23 +99,6 @@ namespace PShochu
 
                 return process.ExitCode;
             }
-        }
-
-        private static string GetPowershellArguments(string moduleLocation, string scriptPath, string taskName)
-        {
-            var psakeScriptPath = new FileInfo(scriptPath).FullName;
-
-            StringBuilder arguments = new StringBuilder();
-            arguments.Append(String.Format(@"import-module ""{0}"";", moduleLocation));
-            arguments.Append(String.Format(@"invoke-psake ""{0}"" {1};", psakeScriptPath, taskName));
-
-            return "-NoProfile -Noninteractive -EncodedCommand " + Base64Encode(arguments.ToString());
-        }
-
-        public static string Base64Encode(string input)
-        {
-            var bytes = System.Text.Encoding.Unicode.GetBytes(input);
-            return System.Convert.ToBase64String(bytes);
         }
     }
 }

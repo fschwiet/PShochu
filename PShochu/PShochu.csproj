@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InvokeResult.cs" />
+    <Compile Include="ConsoleApplicationResult.cs" />
     <Compile Include="PInvoke\AdvApi32PInvoke.cs" />
     <Compile Include="PInvoke\Kernel32.cs" />
     <Compile Include="PInvoke\NetWrappers\ProcessUtil.cs" />
@@ -48,6 +48,7 @@
     <Compile Include="PInvoke\Win32Pipe.cs" />
     <Compile Include="ProcessHandling.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PsakeUtil.cs" />
     <Compile Include="Util\NonclosingStreamReader.cs" />
     <Compile Include="Util\NonclosingStreamWriter.cs" />
   </ItemGroup>

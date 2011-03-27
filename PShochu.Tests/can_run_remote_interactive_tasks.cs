@@ -20,8 +20,12 @@ namespace PShochu.Tests
 
                 when("that script is invoked interactively", delegate
                 {
-                    InvokeResult invocation = arrange(() =>
-                                                      ProcessHandling.InvokeScript(GetModuleLocation(), scriptPath));
+                    ConsoleApplicationResult invocation = arrange(() =>
+                    {
+                        string moduleLocation = GetModuleLocation();
+                        
+                        return ProcessHandling.RunNoninteractiveConsoleProcess("powershell", PsakeUtil.GetPowershellArguments(moduleLocation, scriptPath, "default"));
+                    });
 
                     then("the script succeeds", delegate
                     {
@@ -48,8 +52,11 @@ namespace PShochu.Tests
 
                 when("that script is invoked interactively", delegate
                 {
-                    InvokeResult invocation = arrange(() =>
-                                                      ProcessHandling.InvokeScript(GetModuleLocation(), scriptPath, "Fails"));
+                    ConsoleApplicationResult invocation = arrange(() =>
+                    {
+                        string moduleLocation = GetModuleLocation();
+                        return ProcessHandling.RunNoninteractiveConsoleProcess("powershell", PsakeUtil.GetPowershellArguments(moduleLocation, scriptPath, "Fails"));
+                    });
 
                     then("the exit code indicates failure", delegate
                     {
@@ -64,8 +71,11 @@ namespace PShochu.Tests
 
                 when("that script is invoked interactively", delegate
                 {
-                    InvokeResult invocation = arrange(() =>
-                                                      ProcessHandling.InvokeScript(GetModuleLocation(), scriptPath, "Other"));
+                    ConsoleApplicationResult invocation = arrange(() =>
+                    {
+                        string moduleLocation = GetModuleLocation();
+                        return ProcessHandling.RunNoninteractiveConsoleProcess("powershell", PsakeUtil.GetPowershellArguments(moduleLocation, scriptPath, "Other"));
+                    });
 
                     then("the other tasks output is seen", delegate
                     {

@@ -34,15 +34,8 @@ namespace PShochu
                     consoleStream.Seek(0, SeekOrigin.Begin);
                     errorStream.Seek(0, SeekOrigin.Begin);
 
-                    var consoleOutput =
-                        new NonclosingStreamReader(consoleStream).ReadToEnd().Split(new[] { consoleWriter.NewLine },
-                            StringSplitOptions.None);
+                    result = ConsoleApplicationResult.LoadConsoleOutput(consoleStream, errorStream, consoleWriter, exitCode);
 
-                    var errorOutput =
-                        new NonclosingStreamReader(errorStream).ReadToEnd().Split(new[] { consoleWriter.NewLine },
-                            StringSplitOptions.None);
-
-                    result = new ConsoleApplicationResult(consoleStream, errorStream, consoleOutput, errorOutput, exitCode);
                     consoleStream = null;
                     errorStream = null;
                 }

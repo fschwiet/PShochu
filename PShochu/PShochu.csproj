@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleApplicationResult.cs" />
+    <Compile Include="ConsoleApplicationResultStreams.cs" />
     <Compile Include="PInvoke\AdvApi32PInvoke.cs" />
     <Compile Include="PInvoke\Kernel32.cs" />
     <Compile Include="PInvoke\NetWrappers\ProcessUtil.cs" />

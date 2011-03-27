@@ -174,7 +174,7 @@ namespace PShochu.PInvoke
         public extern static bool DuplicateTokenEx(
             IntPtr hExistingToken,
             uint dwDesiredAccess,
-            IntPtr lpTokenAttributes,
+            ref SECURITY_ATTRIBUTES lpTokenAttributes,
             SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
             TOKEN_TYPE TokenType,
             out IntPtr phNewToken);

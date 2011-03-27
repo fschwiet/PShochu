@@ -37,9 +37,12 @@ namespace PShochu.PInvoke.NetWrappers
 
             try
             {
+                AdvApi32PInvoke.SECURITY_ATTRIBUTES sa = new AdvApi32PInvoke.SECURITY_ATTRIBUTES();
+                sa.nLength = Marshal.SizeOf(sa);
+
                 if (!AdvApi32PInvoke.DuplicateTokenEx(originalToken, 
                     AdvApi32PInvoke.TOKEN_QUERY | AdvApi32PInvoke.TOKEN_DUPLICATE | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY, 
-                    Constants.NULL, AdvApi32PInvoke.SECURITY_IMPERSONATION_LEVEL.SecurityDelegation, AdvApi32PInvoke.TOKEN_TYPE.TokenPrimary,
+                    ref sa, AdvApi32PInvoke.SECURITY_IMPERSONATION_LEVEL.SecurityDelegation, AdvApi32PInvoke.TOKEN_TYPE.TokenPrimary,
                     out duplicatedToken))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());

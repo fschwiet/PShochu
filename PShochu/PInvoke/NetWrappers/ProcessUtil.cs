@@ -12,7 +12,7 @@ namespace PShochu.PInvoke.NetWrappers
 {
     public class ProcessUtil
     {
-        private Process CreateProcessWithToken(
+        static public Process CreateProcessWithToken(
             IntPtr userPrincipalToken, string applicationName, string applicationCommand, bool dontCreateWindow, bool createWithProfile,
             out StreamReader consoleOutput, out StreamReader errorOutput)
         {
@@ -38,10 +38,8 @@ namespace PShochu.PInvoke.NetWrappers
                                                         ? AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE
                                                         : 0;
 
-            IntPtr NULL = (IntPtr) 0;
-
             if (!AdvApi32PInvoke.CreateProcessWithTokenW(userPrincipalToken, logonFlags, applicationName,
-                applicationCommand, creationFlags, NULL, NULL, ref lpStartupInfo, out lpProcessInformation))
+                applicationCommand, creationFlags, Constants.NULL, Constants.NULL, ref lpStartupInfo, out lpProcessInformation))
             {
                 int lastWin32Error = Marshal.GetLastWin32Error();
 

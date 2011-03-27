@@ -141,6 +141,11 @@ namespace PShochu.PInvoke
         }
 
         [DllImport("advapi32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool OpenProcessToken(IntPtr ProcessHandle,
+            UInt32 DesiredAccess, out IntPtr TokenHandle);
+        
+        [DllImport("advapi32.dll", SetLastError = true)]
         public static extern bool OpenThreadToken(
             IntPtr ThreadHandle,
             uint DesiredAccess,
@@ -165,11 +170,11 @@ namespace PShochu.PInvoke
             TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_DEFAULT |
             TOKEN_ADJUST_SESSIONID);
 
-        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public extern static bool DuplicateTokenEx(
             IntPtr hExistingToken,
             uint dwDesiredAccess,
-            ref SECURITY_ATTRIBUTES lpTokenAttributes,
+            IntPtr lpTokenAttributes,
             SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
             TOKEN_TYPE TokenType,
             out IntPtr phNewToken);

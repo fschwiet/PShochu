@@ -5,11 +5,11 @@ namespace PShochu
 {
     public class ConsoleApplicationResultStreams : IDisposable
     {
-        public Stream ConsoleStream;
-        public Stream ErrorStream;
+        public StreamReader ConsoleStream;
+        public StreamReader ErrorStream;
         public int ExitCode;
 
-        public ConsoleApplicationResultStreams(Stream consoleStream, Stream errorStream, int exitCode)
+        public ConsoleApplicationResultStreams(StreamReader consoleStream, StreamReader errorStream, int exitCode)
         {
             ConsoleStream = consoleStream;
             ErrorStream = errorStream;

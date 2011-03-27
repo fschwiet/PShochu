@@ -38,7 +38,5 @@ namespace PShochu.PInvoke
 
         [DllImport("kernel32.dll")]
         public static extern int GetConsoleOutputCP();
-
-
     }
 }

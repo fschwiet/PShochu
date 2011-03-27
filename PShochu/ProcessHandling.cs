@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using PShochu.PInvoke;
+using PShochu.PInvoke.NetWrappers;
 using PShochu.Util;
 
 namespace PShochu
@@ -16,10 +17,42 @@ namespace PShochu
         public static ConsoleApplicationResult RunNoninteractiveConsoleProcess(string command, string commandArguments)
         {
             string newLine;
-
-            var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams(command, commandArguments, out newLine);
+            var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams2(command, commandArguments, out newLine);
 
             return ConsoleApplicationResult.LoadConsoleOutput(consoleStreamsResult, newLine);
+        }
+
+        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams2(string command, string commandArguments, out string newLine)
+        {
+            StreamReader consoleReader = null;
+            StreamReader errorReader = null;
+
+            //string newLine;
+            //var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams(command, commandArguments, out newLine);
+            try
+            {
+                using (var threadToken = AccessToken.GetCurrentThreadAccessToken())
+                {
+                    var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), command,
+                        commandArguments, true, false, out consoleReader, out errorReader);
+
+                    process.Start();
+
+                    process.WaitForExit();
+
+                    newLine = "bugbug";
+
+                    return new ConsoleApplicationResultStreams(consoleReader, errorReader, process.ExitCode);
+                }
+            }
+            finally
+            {
+                if (consoleReader != null)
+                    consoleReader.Dispose();
+
+                if (errorReader != null)
+                    errorReader.Dispose();
+            }            
         }
 
         public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams(string command, string commandArguments, out string newLine)
@@ -74,7 +107,7 @@ namespace PShochu
                         consoleStream.Seek(0, SeekOrigin.Begin);
                         errorStream.Seek(0, SeekOrigin.Begin);
 
-                        var result = new ConsoleApplicationResultStreams(consoleStream, errorStream, process.ExitCode);
+                        var result = new ConsoleApplicationResultStreams(new StreamReader(consoleStream), new StreamReader(errorStream), process.ExitCode);
                         consoleStream = null;
                         errorStream = null;
 

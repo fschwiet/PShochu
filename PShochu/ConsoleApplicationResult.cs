@@ -31,11 +31,11 @@ namespace PShochu
         public static ConsoleApplicationResult LoadConsoleOutput(ConsoleApplicationResultStreams resultStreams, string newline)
         {
             var consoleOutput =
-                new NonclosingStreamReader(resultStreams.ConsoleStream).ReadToEnd().Split(new[] { newline },
+                resultStreams.ConsoleStream.ReadToEnd().Split(new[] { newline },
                     StringSplitOptions.None);
 
             var errorOutput =
-                new NonclosingStreamReader(resultStreams.ErrorStream).ReadToEnd().Split(new[] { newline },
+                resultStreams.ErrorStream.ReadToEnd().Split(new[] { newline },
                     StringSplitOptions.None);
 
             return new ConsoleApplicationResult(consoleOutput, errorOutput, resultStreams.ExitCode);

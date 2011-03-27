@@ -31,12 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NJasmine">
-      <HintPath>..\tools\NUnit_with_NJasmine\bin\net-2.0\addins\NJasmine.dll</HintPath>
+    <Reference Include="NJasmine, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\tools\NUnit_with_NJasmine\net-2.0\addins\NJasmine.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.9.10348, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\tools\NUnit_with_NJasmine\bin\net-2.0\framework\nunit.framework.dll</HintPath>
+      <HintPath>..\tools\NUnit_with_NJasmine\net-2.0\framework\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="PowerAssert">
       <HintPath>..\tools\PowerAssert\PowerAssert.dll</HintPath>

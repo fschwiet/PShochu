@@ -38,5 +38,5 @@ task Configure {
 
 task Test {
 
-    exec { & .\tools\NUnit_with_NJasmine\bin\net-2.0\nunit-console.exe "$($buildDirectory)\PShochu.Tests.dll" /xml="$buildDirectory\TestResults.xml" }
+    exec { & .\tools\NUnit_with_NJasmine\net-2.0\nunit-console.exe "$($buildDirectory)\PShochu.Tests.dll" /xml="$buildDirectory\TestResults.xml" }
 }

@@ -35,7 +35,7 @@ namespace PShochu.PInvoke.NetWrappers
                 var processPseudohandle = Kernel32.GetCurrentProcess();
 
                 if (!AdvApi32PInvoke.OpenProcessToken(processPseudohandle, 
-                        AdvApi32PInvoke.TOKEN_QUERY 
+                    AdvApi32PInvoke.TOKEN_QUERY 
                         | AdvApi32PInvoke.TOKEN_DUPLICATE 
                         | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY
                         | AdvApi32PInvoke.TOKEN_ADJUST_DEFAULT

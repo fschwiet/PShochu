@@ -15,7 +15,9 @@ namespace PShochu.Tests
         {
             describe("assuming the test runs as a typical user", delegate
             {
-                given("the current user's token, duplicated", delegate
+                Console.WriteLine("username: " + System.Diagnostics.Process.GetCurrentProcess().StartInfo.UserName);
+
+                given("the current user's access token", delegate
                 {
                     var currentUserToken = arrange(() => AccessToken.GetCurrentAccessToken());
 

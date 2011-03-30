@@ -55,7 +55,22 @@ namespace PShochu.PInvoke.NetWrappers
             return new SafeFileHandle(originalToken, true);
         }
 
-        private static SafeHandle DuplicateTokenAsPrimaryToken(SafeHandle originalToken)
+        public static SafeHandle LogonUser(string username, string password, string domain = ".")
+        {
+            IntPtr handle;
+
+            if (!AdvApi32PInvoke.LogonUser(username,domain, password, 
+                (int)AdvApi32PInvoke.LogonType.LOGON32_LOGON_BATCH,
+                (int)AdvApi32PInvoke.LogonProvider.LOGON32_PROVIDER_DEFAULT,
+                out handle))
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            return new SafeFileHandle(handle, true);
+        }
+
+        public static SafeHandle DuplicateTokenAsPrimaryToken(SafeHandle originalToken)
         {
             IntPtr duplicatedToken = Constants.INVALID_HANDLE_VALUE;
 

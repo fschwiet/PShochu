@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text;
 using NJasmine;
 using PShochu.PInvoke;
@@ -13,46 +14,44 @@ namespace PShochu.Tests
     {
         public override void Specify()
         {
-            describe("assuming the test runs as a typical user", delegate
+            given("the current user's access token", delegate
             {
-                Console.WriteLine("username: " + System.Diagnostics.Process.GetCurrentProcess().StartInfo.UserName);
 
-                given("the current user's access token", delegate
+                //var currentUserToken = arrange(() => AccessToken.GetCurrentAccessToken());
+                var currentUserToken = arrange(() => AccessToken.LogonUser("user", "password"));
+                var duplicatedToken = arrange(() => AccessToken.DuplicateTokenAsPrimaryToken(currentUserToken));
+
+                it("should have SE_SHUTDOWN_NAME", delegate
                 {
-                    var currentUserToken = arrange(() => AccessToken.GetCurrentAccessToken());
+                    var exectedPrivilege = AdvApi32PInvoke.SE_SHUTDOWN_NAME;
 
-                    it("should have SE_SHUTDOWN_NAME", delegate
-                    {
-                        var exectedPrivilege = AdvApi32PInvoke.SE_SHUTDOWN_NAME;
-
-                        expect(() => CheckPrivilege(exectedPrivilege, currentUserToken));
-                    });
-
-                    it("should not have privilege SE_ASSIGNPRIMARYTOKEN_NAME", delegate
-                    {
-                        var exectedPrivilege = AdvApi32PInvoke.SE_ASSIGNPRIMARYTOKEN_NAME;
-
-                        expect(() => !CheckPrivilege(exectedPrivilege, currentUserToken));
-                    });
-
-                    it("should not have privilege SE_TCB_NAME", delegate
-                    {
-                        var exectedPrivilege = AdvApi32PInvoke.SE_TCB_NAME;
-
-                        expect(() => !CheckPrivilege(exectedPrivilege, currentUserToken));
-                    });
+                    expect(() => CheckPrivilege(exectedPrivilege, duplicatedToken));
                 });
 
-                given("the local system account", delegate
+                it("should not have privilege SE_ASSIGNPRIMARYTOKEN_NAME", delegate
                 {
-                    SafeHandle localSystemToken = null; // TODO
+                    var exectedPrivilege = AdvApi32PInvoke.SE_ASSIGNPRIMARYTOKEN_NAME;
 
-                    it("should privilege SE_TCB_NAME", delegate
-                    {
-                        var exectedPrivilege = AdvApi32PInvoke.SE_TCB_NAME;
+                    expect(() => !CheckPrivilege(exectedPrivilege, duplicatedToken));
+                });
 
-                        expect(() => CheckPrivilege(exectedPrivilege, localSystemToken));
-                    });
+                it("should not have privilege SE_TCB_NAME", delegate
+                {
+                    var exectedPrivilege = AdvApi32PInvoke.SE_TCB_NAME;
+
+                    expect(() => !CheckPrivilege(exectedPrivilege, duplicatedToken));
+                });
+            });
+
+            given("the local system account", delegate
+            {
+                SafeHandle localSystemToken = null; // TODO
+
+                it("should privilege SE_TCB_NAME", delegate
+                {
+                    var exectedPrivilege = AdvApi32PInvoke.SE_TCB_NAME;
+
+                    expect(() => CheckPrivilege(exectedPrivilege, localSystemToken));
                 });
             });
 

@@ -11,19 +11,26 @@ namespace PShochu.PInvoke.NetWrappers
 {
     public class AccessToken
     {
-        static public SafeHandle GetCurrentThreadAccessToken()
+        static public SafeHandle GetCurrentAccessTokenDuplicatedAsPrimary()
+        {
+            using (var originalToken = GetCurrentAccessToken())
+            {
+                return DuplicateTokenAsPrimaryToken(originalToken);
+            }
+        }
+
+        public static SafeHandle GetCurrentAccessToken()
         {
             IntPtr originalToken = Constants.INVALID_HANDLE_VALUE;
-            IntPtr duplicatedToken = Constants.INVALID_HANDLE_VALUE;
 
             IntPtr threadPSeudoHandle = Kernel32.GetCurrentThread(); 
 
             if (!AdvApi32PInvoke.OpenThreadToken(threadPSeudoHandle,
                 AdvApi32PInvoke.TOKEN_QUERY
-                        | AdvApi32PInvoke.TOKEN_DUPLICATE
-                        | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY
-                        | AdvApi32PInvoke.TOKEN_ADJUST_DEFAULT
-                        | AdvApi32PInvoke.TOKEN_ADJUST_SESSIONID, false, out originalToken))
+                | AdvApi32PInvoke.TOKEN_DUPLICATE
+                | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY
+                | AdvApi32PInvoke.TOKEN_ADJUST_DEFAULT
+                | AdvApi32PInvoke.TOKEN_ADJUST_SESSIONID, false, out originalToken))
             {
                 var lastWin32Error = Marshal.GetLastWin32Error();
 
@@ -36,38 +43,36 @@ namespace PShochu.PInvoke.NetWrappers
 
                 if (!AdvApi32PInvoke.OpenProcessToken(processPseudohandle, 
                     AdvApi32PInvoke.TOKEN_QUERY 
-                        | AdvApi32PInvoke.TOKEN_DUPLICATE 
-                        | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY
-                        | AdvApi32PInvoke.TOKEN_ADJUST_DEFAULT
-                        | AdvApi32PInvoke.TOKEN_ADJUST_SESSIONID, out originalToken))
+                    | AdvApi32PInvoke.TOKEN_DUPLICATE 
+                    | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY
+                    | AdvApi32PInvoke.TOKEN_ADJUST_DEFAULT
+                    | AdvApi32PInvoke.TOKEN_ADJUST_SESSIONID, out originalToken))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
             }
 
-            try
+            return new SafeFileHandle(originalToken, true);
+        }
+
+        private static SafeHandle DuplicateTokenAsPrimaryToken(SafeHandle originalToken)
+        {
+            IntPtr duplicatedToken = Constants.INVALID_HANDLE_VALUE;
+
+            AdvApi32PInvoke.SECURITY_ATTRIBUTES sa = new AdvApi32PInvoke.SECURITY_ATTRIBUTES();
+            sa.nLength = Marshal.SizeOf(sa);
+
+            if (!AdvApi32PInvoke.DuplicateTokenEx(originalToken.DangerousGetHandle(), 
+                AdvApi32PInvoke.TOKEN_QUERY | AdvApi32PInvoke.TOKEN_DUPLICATE | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY, 
+                ref sa, 
+                AdvApi32PInvoke.SECURITY_IMPERSONATION_LEVEL.SecurityDelegation, 
+                AdvApi32PInvoke.TOKEN_TYPE.TokenPrimary,
+                out duplicatedToken))
             {
-                AdvApi32PInvoke.SECURITY_ATTRIBUTES sa = new AdvApi32PInvoke.SECURITY_ATTRIBUTES();
-                sa.nLength = Marshal.SizeOf(sa);
-
-                if (!AdvApi32PInvoke.DuplicateTokenEx(originalToken, 
-                    AdvApi32PInvoke.TOKEN_QUERY | AdvApi32PInvoke.TOKEN_DUPLICATE | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY, 
-                    ref sa, AdvApi32PInvoke.SECURITY_IMPERSONATION_LEVEL.SecurityDelegation, AdvApi32PInvoke.TOKEN_TYPE.TokenPrimary,
-                    out duplicatedToken))
-                {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-
-                var result = new SafeFileHandle(duplicatedToken, true);
-                duplicatedToken = Constants.INVALID_HANDLE_VALUE;
-
-                return result;
+                throw new Win32Exception(Marshal.GetLastWin32Error());
             }
-            finally
-            {
-                Kernel32.CloseHandle(originalToken);
-                Kernel32.CloseHandle(duplicatedToken);
-            }
+
+            return new SafeFileHandle(duplicatedToken, true);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace PShochu
             //var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams(command, commandArguments, out newLine);
             try
             {
-                using (var threadToken = AccessToken.GetCurrentThreadAccessToken())
+                using (var threadToken = AccessToken.GetCurrentAccessTokenDuplicatedAsPrimary())
                 {
                     var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), command,
                         commandArguments, true, false, out consoleReader, out errorReader);

@@ -5,6 +5,49 @@ namespace PShochu.PInvoke
 {
     public class AdvApi32PInvoke
     {
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool LookupPrivilegeValue(string lpSystemName, string lpName,
+            out LUID lpLuid);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct PRIVILEGE_SET
+        {
+            public uint PrivilegeCount;
+            public uint Control;  // use PRIVILEGE_SET_ALL_NECESSARY
+
+            public static uint PRIVILEGE_SET_ALL_NECESSARY = 1;
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
+            public LUID_AND_ATTRIBUTES[] Privilege;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct LUID_AND_ATTRIBUTES {
+            public LUID Luid;
+            public UInt32 Attributes;
+
+            public const UInt32 SE_PRIVILEGE_ENABLED_BY_DEFAULT = 0x00000001;
+            public const UInt32 SE_PRIVILEGE_ENABLED = 0x00000002;
+            public const UInt32 SE_PRIVILEGE_REMOVED = 0x00000004;
+            public const UInt32 SE_PRIVILEGE_USED_FOR_ACCESS = 0x80000000;
+        }
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern bool PrivilegeCheck(
+            IntPtr ClientToken,
+            ref PRIVILEGE_SET RequiredPrivileges,
+            out bool pfResult
+            );
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct LUID
+        {
+            public uint LowPart;
+            public int HighPart;
+        }
+
         public const string SE_ASSIGNPRIMARYTOKEN_NAME = "SeAssignPrimaryTokenPrivilege";
         public const string SE_AUDIT_NAME = "SeAuditPrivilege";
         public const string SE_BACKUP_NAME = "SeBackupPrivilege";

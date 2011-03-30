@@ -18,7 +18,12 @@ namespace PShochu.PInvoke.NetWrappers
 
             IntPtr threadPSeudoHandle = Kernel32.GetCurrentThread(); 
 
-            if (!AdvApi32PInvoke.OpenThreadToken(threadPSeudoHandle, AdvApi32PInvoke.TOKEN_QUERY | AdvApi32PInvoke.TOKEN_DUPLICATE | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY, false, out originalToken))
+            if (!AdvApi32PInvoke.OpenThreadToken(threadPSeudoHandle,
+                AdvApi32PInvoke.TOKEN_QUERY
+                        | AdvApi32PInvoke.TOKEN_DUPLICATE
+                        | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY
+                        | AdvApi32PInvoke.TOKEN_ADJUST_DEFAULT
+                        | AdvApi32PInvoke.TOKEN_ADJUST_SESSIONID, false, out originalToken))
             {
                 var lastWin32Error = Marshal.GetLastWin32Error();
 
@@ -29,7 +34,12 @@ namespace PShochu.PInvoke.NetWrappers
 
                 var processPseudohandle = Kernel32.GetCurrentProcess();
 
-                if (!AdvApi32PInvoke.OpenProcessToken(processPseudohandle, AdvApi32PInvoke.TOKEN_QUERY | AdvApi32PInvoke.TOKEN_DUPLICATE | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY, out originalToken))
+                if (!AdvApi32PInvoke.OpenProcessToken(processPseudohandle, 
+                        AdvApi32PInvoke.TOKEN_QUERY 
+                        | AdvApi32PInvoke.TOKEN_DUPLICATE 
+                        | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY
+                        | AdvApi32PInvoke.TOKEN_ADJUST_DEFAULT
+                        | AdvApi32PInvoke.TOKEN_ADJUST_SESSIONID, out originalToken))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }

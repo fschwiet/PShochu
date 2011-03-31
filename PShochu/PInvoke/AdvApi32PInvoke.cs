@@ -258,6 +258,15 @@ namespace PShochu.PInvoke
             TOKEN_TYPE TokenType,
             out IntPtr phNewToken);
 
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public extern static bool DuplicateTokenEx(
+            IntPtr hExistingToken,
+            uint dwDesiredAccess,
+            IntPtr lpTokenAttributes,
+            SECURITY_IMPERSONATION_LEVEL ImpersonationLevel,
+            TOKEN_TYPE TokenType,
+            out IntPtr phNewToken);
+
         [StructLayout(LayoutKind.Sequential)]
         public struct SECURITY_ATTRIBUTES
         {

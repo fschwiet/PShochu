@@ -74,13 +74,10 @@ namespace PShochu.PInvoke.NetWrappers
         {
             IntPtr duplicatedToken = Constants.INVALID_HANDLE_VALUE;
 
-            AdvApi32PInvoke.SECURITY_ATTRIBUTES sa = new AdvApi32PInvoke.SECURITY_ATTRIBUTES();
-            sa.nLength = Marshal.SizeOf(sa);
-
             if (!AdvApi32PInvoke.DuplicateTokenEx(originalToken.DangerousGetHandle(), 
                 AdvApi32PInvoke.TOKEN_QUERY | AdvApi32PInvoke.TOKEN_DUPLICATE | AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY, 
-                ref sa, 
-                AdvApi32PInvoke.SECURITY_IMPERSONATION_LEVEL.SecurityDelegation, 
+                Constants.NULL, 
+                AdvApi32PInvoke.SECURITY_IMPERSONATION_LEVEL.SecurityImpersonation, 
                 AdvApi32PInvoke.TOKEN_TYPE.TokenPrimary,
                 out duplicatedToken))
             {

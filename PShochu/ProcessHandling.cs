@@ -31,8 +31,7 @@ namespace PShochu
             {
                 using (var threadToken = AccessToken.GetCurrentAccessTokenDuplicatedAsPrimary())
                 {
-                    var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), null, 
-                        commandArguments, out consoleReader, out errorReader);
+                    var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), null, commandArguments, out consoleReader, out errorReader);
 
                     process.WaitForExit();
 

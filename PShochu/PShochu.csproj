@@ -48,7 +48,7 @@
     <Compile Include="PInvoke\Kernel32.cs" />
     <Compile Include="PInvoke\NetWrappers\AccessToken.cs" />
     <Compile Include="PInvoke\NetWrappers\ProcessUtil.cs" />
-    <Compile Include="PInvoke\NetWrappers\StartupInfoWithOutputPipes.cs" />
+    <Compile Include="PInvoke\NetWrappers\StartupInfoWithOutputStreams.cs" />
     <Compile Include="PInvoke\Win32Pipe.cs" />
     <Compile Include="ProcessHandling.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

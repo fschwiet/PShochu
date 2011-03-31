@@ -17,12 +17,12 @@ namespace PShochu.PInvoke.NetWrappers
             IntPtr userPrincipalToken, 
             string applicationName, 
             string applicationCommand,
-            out StreamReader consoleOutput, 
+            out StreamReader consoleOutput,
             out StreamReader errorOutput)
         {
             AdvApi32PInvoke.PROCESS_INFORMATION lpProcessInformation = new AdvApi32PInvoke.PROCESS_INFORMATION();
 
-            using (var startupInfo = StartupInfoWithOutputPipes.Create())
+            using (var startupInfo = StartupInfoWithOutputStreams.Create())
             {
                 AdvApi32PInvoke.LogonFlags logonFlags = AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE;
 
@@ -48,11 +48,10 @@ namespace PShochu.PInvoke.NetWrappers
 
                 Kernel32.CloseHandle(lpProcessInformation.hThread);
 
-                consoleOutput = new StreamReader(new FileStream(startupInfo.stdOutput, FileAccess.Read, 0x1000, false), Encoding.GetEncoding(Kernel32.GetConsoleOutputCP()), true, 0x1000);
-                startupInfo.stdOutput = null;
-
-                errorOutput = new StreamReader(new FileStream(startupInfo.stdError, FileAccess.Read, 0x1000, false), Encoding.GetEncoding(Kernel32.GetConsoleOutputCP()), true, 0x1000);
-                startupInfo.stdError = null;
+                consoleOutput = startupInfo.ConsoleOutput;
+                startupInfo.ConsoleOutput = null;
+                errorOutput = startupInfo.ErrorOutput;
+                startupInfo.ErrorOutput = null;
 
                 return result;
             }

@@ -40,7 +40,7 @@ namespace PShochu.Tests
 
                 string commandLine = ("powershell");
 
-                var startupInfo = StartupInfoWithOutputPipes.Create();
+                var startupInfo = StartupInfoWithOutputStreams.Create();
 
                 AdvApi32PInvoke.PROCESS_INFORMATION processInformation = new AdvApi32PInvoke.PROCESS_INFORMATION();
 

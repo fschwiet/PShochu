@@ -28,7 +28,7 @@ namespace PShochu.PInvoke.NetWrappers
             Win32Pipe.CreatePipe(out ignored, out stdOutput, false);
             Win32Pipe.CreatePipe(out ignored, out stdError, false);
 
-            lpStartupInfo.hStdInput = stdOutput.DangerousGetHandle();
+            lpStartupInfo.hStdOutput = stdOutput.DangerousGetHandle();
             lpStartupInfo.hStdError = stdError.DangerousGetHandle();
             lpStartupInfo.dwFlags = AdvApi32PInvoke.STARTF_USESTDHANDLES;
 

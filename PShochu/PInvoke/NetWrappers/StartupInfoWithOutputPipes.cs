@@ -22,8 +22,8 @@ namespace PShochu.PInvoke.NetWrappers
 
             SafeFileHandle ignored;
 
-            Win32Pipe.CreatePipe(out ignored, out result.stdOutput, false);
-            Win32Pipe.CreatePipe(out ignored, out result.stdError, false);
+            Win32Pipe.CreatePipe(out result.stdOutput, out ignored, false);
+            Win32Pipe.CreatePipe(out result.stdError, out ignored, false);
 
             result.STARTUP_INFO.hStdInput = Kernel32.GetStdHandle(Kernel32.STD_INPUT_HANDLE);
             result.STARTUP_INFO.hStdOutput = result.stdOutput.DangerousGetHandle();

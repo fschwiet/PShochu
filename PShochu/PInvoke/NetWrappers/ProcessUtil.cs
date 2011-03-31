@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Microsoft.Win32.SafeHandles;
+using PShochu.Reflection;
 
 namespace PShochu.PInvoke.NetWrappers
 {
@@ -36,11 +37,13 @@ namespace PShochu.PInvoke.NetWrappers
                     throw new Win32Exception(lastWin32Error);
                 }
 
-                var setProcessHandleMethod = typeof(Process).GetMethod("SetProcessHandle", BindingFlags.NonPublic);
+                var setProcessHandleMethod = typeof(Process).GetMethod("SetProcessHandle", BindingFlags.Instance | BindingFlags.NonPublic);
                 var setProcessIdMethod = typeof(Process).GetMethod("SetProcessInfo", BindingFlags.NonPublic);
 
                 var result = new Process();
-                setProcessHandleMethod.Invoke(result, new object[] { lpProcessInformation.hProcess });
+                setProcessHandleMethod.Invoke(result, new object[] {  SafeHandles.CreateSafeProcessHandle(lpProcessInformation.hProcess) });
+                lpProcessInformation.hProcess = Constants.NULL;
+
                 setProcessIdMethod.Invoke(result, new object[] { lpProcessInformation.dwProcessId });
 
                 Kernel32.CloseHandle(lpProcessInformation.hThread);

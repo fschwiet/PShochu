@@ -24,35 +24,18 @@ namespace PShochu
 
         public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams(string commandArguments, out string newLine)
         {
-            StreamReader consoleReader = null;
-            StreamReader errorReader = null;
-
-            try
+            using (var threadToken = AccessToken.GetCurrentAccessTokenDuplicatedAsPrimary())
             {
-                using (var threadToken = AccessToken.GetCurrentAccessTokenDuplicatedAsPrimary())
-                {
-                    var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), null, commandArguments, out consoleReader, out errorReader);
+                var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), null, commandArguments);
 
-                    process.WaitForExit();
+                process.WaitForExit();
 
-                    newLine = Environment.NewLine;
+                newLine = Environment.NewLine;
 
-                    var result = new ConsoleApplicationResultStreams(consoleReader, errorReader, process.ExitCode);
+                var result = new ConsoleApplicationResultStreams(process.StandardOutput, process.StandardError, process.ExitCode);
 
-                    consoleReader = null;
-                    errorReader = null;
-
-                    return result;
-                }
+                return result;
             }
-            finally
-            {
-                if (consoleReader != null)
-                    consoleReader.Dispose();
-
-                if (errorReader != null)
-                    errorReader.Dispose();
-            }            
         }
 
         public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreamsWithManagedCode(string command, string commandArguments, out string newLine)

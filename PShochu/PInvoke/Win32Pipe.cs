@@ -26,7 +26,8 @@ namespace PShochu.PInvoke
                     CreatePipeWithSecurityAttributes(out hWritePipe, out childHandle, lpPipeAttributes, 0);
                 }
 
-                if (!Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), hWritePipe, Kernel32.GetCurrentProcess(), out parentHandle, 0, false, Kernel32.DUPLICATE_SAME_ACCESS))
+                if (!Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), hWritePipe, Kernel32.GetCurrentProcess(), out parentHandle, 
+                    0, false, Kernel32.DUPLICATE_SAME_ACCESS))
                 {
                     throw new Win32Exception();
                 }

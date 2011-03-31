@@ -16,18 +16,17 @@ namespace PShochu.PInvoke.NetWrappers
         static public Process CreateProcessWithToken(
             IntPtr userPrincipalToken, 
             string applicationName, 
-            string applicationCommand,
-            out StreamReader consoleOutput,
-            out StreamReader errorOutput)
+            string applicationCommand)
         {
             AdvApi32PInvoke.PROCESS_INFORMATION lpProcessInformation = new AdvApi32PInvoke.PROCESS_INFORMATION();
 
             using (var startupInfo = StartupInfoWithOutputStreams.Create())
             {
                 AdvApi32PInvoke.LogonFlags logonFlags = AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE;
+                AdvApi32PInvoke.CreationFlags creationFlags = AdvApi32PInvoke.CreationFlags.CREATE_NEW_CONSOLE;
 
                 if (!AdvApi32PInvoke.CreateProcessWithTokenW(userPrincipalToken, logonFlags, applicationName,
-                    applicationCommand, 0, Constants.NULL, Constants.NULL, ref startupInfo.STARTUP_INFO, out lpProcessInformation))
+                    applicationCommand, (int)creationFlags, Constants.NULL, Constants.NULL, ref startupInfo.STARTUP_INFO, out lpProcessInformation))
                 {
                     int lastWin32Error = Marshal.GetLastWin32Error();
 
@@ -39,19 +38,22 @@ namespace PShochu.PInvoke.NetWrappers
 
                 var setProcessHandleMethod = typeof(Process).GetMethod("SetProcessHandle", BindingFlags.Instance | BindingFlags.NonPublic);
                 var setProcessIdMethod = typeof(Process).GetMethod("SetProcessId", BindingFlags.Instance | BindingFlags.NonPublic);
+                var standardOutputProperty = typeof(Process).GetField("standardOutput",BindingFlags.NonPublic | BindingFlags.Instance);
+                var standardErrorProperty = typeof(Process).GetField("standardError",BindingFlags.NonPublic | BindingFlags.Instance);
 
                 var result = new Process();
+
+                standardOutputProperty.SetValue(result, startupInfo.ConsoleOutput);
+                startupInfo.ConsoleOutput = null;
+
+                standardErrorProperty.SetValue(result, startupInfo.ErrorOutput);
+                startupInfo.ErrorOutput = null;                
                 setProcessHandleMethod.Invoke(result, new object[] {  SafeHandles.CreateSafeProcessHandle(lpProcessInformation.hProcess) });
                 lpProcessInformation.hProcess = Constants.NULL;
 
                 setProcessIdMethod.Invoke(result, new object[] { lpProcessInformation.dwProcessId });
 
                 Kernel32.CloseHandle(lpProcessInformation.hThread);
-
-                consoleOutput = startupInfo.ConsoleOutput;
-                startupInfo.ConsoleOutput = null;
-                errorOutput = startupInfo.ErrorOutput;
-                startupInfo.ErrorOutput = null;
 
                 return result;
             }

@@ -38,7 +38,7 @@ namespace PShochu.PInvoke.NetWrappers
                 }
 
                 var setProcessHandleMethod = typeof(Process).GetMethod("SetProcessHandle", BindingFlags.Instance | BindingFlags.NonPublic);
-                var setProcessIdMethod = typeof(Process).GetMethod("SetProcessInfo", BindingFlags.NonPublic);
+                var setProcessIdMethod = typeof(Process).GetMethod("SetProcessId", BindingFlags.Instance | BindingFlags.NonPublic);
 
                 var result = new Process();
                 setProcessHandleMethod.Invoke(result, new object[] {  SafeHandles.CreateSafeProcessHandle(lpProcessInformation.hProcess) });

@@ -17,12 +17,12 @@ namespace PShochu
         public static ConsoleApplicationResult RunNoninteractiveConsoleProcess(string commandLine)
         {
             string newLine;
-            var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams(null, commandLine, out newLine);
+            var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams(commandLine, out newLine);
 
             return ConsoleApplicationResult.LoadConsoleOutput(consoleStreamsResult, newLine);
         }
 
-        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams(string command, string commandArguments, out string newLine)
+        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams(string commandArguments, out string newLine)
         {
             StreamReader consoleReader = null;
             StreamReader errorReader = null;
@@ -31,16 +31,19 @@ namespace PShochu
             {
                 using (var threadToken = AccessToken.GetCurrentAccessTokenDuplicatedAsPrimary())
                 {
-                    var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), command,
+                    var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), null, 
                         commandArguments, out consoleReader, out errorReader);
-
-                    process.Start();
 
                     process.WaitForExit();
 
-                    newLine = "bugbug";
+                    newLine = Environment.NewLine;
 
-                    return new ConsoleApplicationResultStreams(consoleReader, errorReader, process.ExitCode);
+                    var result = new ConsoleApplicationResultStreams(consoleReader, errorReader, process.ExitCode);
+
+                    consoleReader = null;
+                    errorReader = null;
+
+                    return result;
                 }
             }
             finally

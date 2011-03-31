@@ -24,7 +24,7 @@ namespace PShochu.Tests
                     {
                         string moduleLocation = GetModuleLocation();
                         
-                        return ProcessHandling.RunNoninteractiveConsoleProcess("powershell", PsakeUtil.GetPowershellArguments(moduleLocation, scriptPath, "default"));
+                        return ProcessHandling.RunNoninteractiveConsoleProcess(PsakeUtil.GetPowershellCommand(moduleLocation, scriptPath, "default"));
                     });
 
                     then("the script succeeds", delegate
@@ -55,7 +55,7 @@ namespace PShochu.Tests
                     ConsoleApplicationResult invocation = arrange(() =>
                     {
                         string moduleLocation = GetModuleLocation();
-                        return ProcessHandling.RunNoninteractiveConsoleProcess("powershell", PsakeUtil.GetPowershellArguments(moduleLocation, scriptPath, "Fails"));
+                        return ProcessHandling.RunNoninteractiveConsoleProcess(PsakeUtil.GetPowershellCommand(moduleLocation, scriptPath, "Fails"));
                     });
 
                     then("the exit code indicates failure", delegate
@@ -74,7 +74,7 @@ namespace PShochu.Tests
                     ConsoleApplicationResult invocation = arrange(() =>
                     {
                         string moduleLocation = GetModuleLocation();
-                        return ProcessHandling.RunNoninteractiveConsoleProcess("powershell", PsakeUtil.GetPowershellArguments(moduleLocation, scriptPath, "Other"));
+                        return ProcessHandling.RunNoninteractiveConsoleProcess(PsakeUtil.GetPowershellCommand(moduleLocation, scriptPath, "Other"));
                     });
 
                     then("the other tasks output is seen", delegate

@@ -14,27 +14,25 @@ namespace PShochu
 {
     public class ProcessHandling
     {
-        public static ConsoleApplicationResult RunNoninteractiveConsoleProcess(string command, string commandArguments)
+        public static ConsoleApplicationResult RunNoninteractiveConsoleProcess(string commandLine)
         {
             string newLine;
-            var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams2(command, commandArguments, out newLine);
+            var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams(null, commandLine, out newLine);
 
             return ConsoleApplicationResult.LoadConsoleOutput(consoleStreamsResult, newLine);
         }
 
-        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams2(string command, string commandArguments, out string newLine)
+        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams(string command, string commandArguments, out string newLine)
         {
             StreamReader consoleReader = null;
             StreamReader errorReader = null;
 
-            //string newLine;
-            //var consoleStreamsResult = RunNoninteractiveConsoleProcessForStreams(command, commandArguments, out newLine);
             try
             {
                 using (var threadToken = AccessToken.GetCurrentAccessTokenDuplicatedAsPrimary())
                 {
                     var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), command,
-                        commandArguments, true, false, out consoleReader, out errorReader);
+                        commandArguments, out consoleReader, out errorReader);
 
                     process.Start();
 
@@ -55,7 +53,7 @@ namespace PShochu
             }            
         }
 
-        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreams(string command, string commandArguments, out string newLine)
+        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreamsWithManagedCode(string command, string commandArguments, out string newLine)
         {
             var consoleStream = new MemoryStream();
             var errorStream = new MemoryStream();

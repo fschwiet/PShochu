@@ -6,7 +6,7 @@ namespace PShochu
 {
     public class PsakeUtil
     {
-        public static string GetPowershellArguments(string moduleLocation, string scriptPath, string taskName)
+        public static string GetPowershellCommand(string moduleLocation, string scriptPath, string taskName)
         {
             var psakeScriptPath = new FileInfo(scriptPath).FullName;
 
@@ -14,7 +14,7 @@ namespace PShochu
             arguments.Append(String.Format(@"import-module ""{0}"";", moduleLocation));
             arguments.Append(String.Format(@"invoke-psake ""{0}"" {1};", psakeScriptPath, taskName));
 
-            return "-NoProfile -Noninteractive -EncodedCommand " + Base64Encode(arguments.ToString());
+            return "powershell -NoProfile -Noninteractive -EncodedCommand " + Base64Encode(arguments.ToString());
         }
 
         public static string Base64Encode(string input)

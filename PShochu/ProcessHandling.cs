@@ -38,10 +38,19 @@ namespace PShochu
             }
         }
 
-        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreamsWithManagedCode(string command, string commandArguments, out string newLine)
+        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreamsWithManagedCode(string commandArguments, out string newLine)
         {
             var consoleStream = new MemoryStream();
             var errorStream = new MemoryStream();
+
+            string command = commandArguments;
+
+            if (command.Contains(" "))
+            {
+                var index = command.IndexOf(" ");
+                commandArguments = commandArguments.Substring(index + 1);
+                command = command.Substring(0, index);
+            }
 
             try
             {

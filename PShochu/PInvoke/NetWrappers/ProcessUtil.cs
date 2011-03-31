@@ -16,21 +16,9 @@ namespace PShochu.PInvoke.NetWrappers
             IntPtr userPrincipalToken, string applicationName, string applicationCommand, bool dontCreateWindow, bool createWithProfile,
             out StreamReader consoleOutput, out StreamReader errorOutput)
         {
-            AdvApi32PInvoke.STARTUPINFO lpStartupInfo = new AdvApi32PInvoke.STARTUPINFO();
             AdvApi32PInvoke.PROCESS_INFORMATION lpProcessInformation = new AdvApi32PInvoke.PROCESS_INFORMATION();
-            lpStartupInfo.hStdInput = Kernel32.GetStdHandle(Kernel32.STD_INPUT_HANDLE);
 
-            SafeFileHandle ignored;
-
-            SafeFileHandle stdOutput;
-            SafeFileHandle stdError;
-
-            Win32Pipe.CreatePipe(out ignored, out stdOutput, false);
-            Win32Pipe.CreatePipe(out ignored, out stdError, false);
-
-            lpStartupInfo.hStdOutput = stdOutput.DangerousGetHandle();
-            lpStartupInfo.hStdError = stdError.DangerousGetHandle();
-            lpStartupInfo.dwFlags = AdvApi32PInvoke.STARTF_USESTDHANDLES;
+            var startupInfo = StartupInfoWithOutputPipes.Create();
 
             int creationFlags = dontCreateWindow ? AdvApi32PInvoke.CREATE_NO_WINDOW : 0;
 
@@ -39,7 +27,7 @@ namespace PShochu.PInvoke.NetWrappers
                                                         : 0;
 
             if (!AdvApi32PInvoke.CreateProcessWithTokenW(userPrincipalToken, logonFlags, applicationName,
-                applicationCommand, creationFlags, Constants.NULL, Constants.NULL, ref lpStartupInfo, out lpProcessInformation))
+                applicationCommand, creationFlags, Constants.NULL, Constants.NULL, ref startupInfo.STARTUP_INFO, out lpProcessInformation))
             {
                 int lastWin32Error = Marshal.GetLastWin32Error();
 
@@ -58,8 +46,8 @@ namespace PShochu.PInvoke.NetWrappers
 
             Kernel32.CloseHandle(lpProcessInformation.hThread);
 
-            consoleOutput = new StreamReader(new FileStream(stdOutput, FileAccess.Read, 0x1000, false), Encoding.GetEncoding(Kernel32.GetConsoleOutputCP()), true, 0x1000);
-            errorOutput = new StreamReader(new FileStream(stdError, FileAccess.Read, 0x1000, false), Encoding.GetEncoding(Kernel32.GetConsoleOutputCP()), true, 0x1000);
+            consoleOutput = new StreamReader(new FileStream(startupInfo.stdOutput, FileAccess.Read, 0x1000, false), Encoding.GetEncoding(Kernel32.GetConsoleOutputCP()), true, 0x1000);
+            errorOutput = new StreamReader(new FileStream(startupInfo.stdError, FileAccess.Read, 0x1000, false), Encoding.GetEncoding(Kernel32.GetConsoleOutputCP()), true, 0x1000);
 
             return result;
         }

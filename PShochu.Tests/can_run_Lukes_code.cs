@@ -40,14 +40,13 @@ namespace PShochu.Tests
 
                 string commandLine = ("powershell");
 
-                AdvApi32PInvoke.STARTUPINFO startupInfo = new AdvApi32PInvoke.STARTUPINFO();
-                startupInfo.cb = Marshal.SizeOf(typeof(AdvApi32PInvoke.STARTUPINFO));
+                var startupInfo = StartupInfoWithOutputPipes.Create();
 
                 AdvApi32PInvoke.PROCESS_INFORMATION processInformation = new AdvApi32PInvoke.PROCESS_INFORMATION();
 
                 if (!AdvApi32PInvoke.CreateProcessWithTokenW(hDuplicate,
                         AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE, null, commandLine, 0, Constants.NULL,
-                        Constants.NULL, ref startupInfo, out processInformation))
+                        Constants.NULL, ref startupInfo.STARTUP_INFO, out processInformation))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }

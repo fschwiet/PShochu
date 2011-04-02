@@ -26,98 +26,89 @@ namespace PShochu
         {
             using (var threadToken = AccessToken.GetCurrentAccessTokenDuplicatedAsPrimary())
             {
-                var process = ProcessUtil.CreateProcessWithToken(threadToken.DangerousGetHandle(), null, commandArguments);
+                StreamReader consoleOutput;
+                StreamReader errorOutput;
+                IntPtr processHandle;
+                int dwProcessId;
+                using (var startupInfo = StartupInfoWithOutputStreams.Create())
+                {
+                    AdvApi32PInvoke.PROCESS_INFORMATION lpProcessInformation = new AdvApi32PInvoke.PROCESS_INFORMATION();
 
-                process.WaitForExit();
+                    AdvApi32PInvoke.LogonFlags logonFlags = AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE;
+                    AdvApi32PInvoke.CreationFlags creationFlags = AdvApi32PInvoke.CreationFlags.CREATE_NEW_CONSOLE;
+
+                    if (!AdvApi32PInvoke.CreateProcessWithTokenW(threadToken.DangerousGetHandle(), logonFlags, null,
+                        commandArguments, (int)creationFlags, Constants.NULL, Constants.NULL, ref startupInfo.STARTUP_INFO, out lpProcessInformation))
+                    {
+                        int lastWin32Error = Marshal.GetLastWin32Error();
+
+                        if (lastWin32Error == 0xc1)  // found in Process.StartWithCreateProcess
+                            throw new Win32Exception("Invalid application");
+
+                        throw new Win32Exception(lastWin32Error);
+                    }
+
+                    Kernel32.CloseHandle(lpProcessInformation.hThread);
+
+                    processHandle = lpProcessInformation.hProcess;
+                    lpProcessInformation.hProcess = Constants.NULL;
+
+                    consoleOutput = startupInfo.ConsoleOutput;
+                    errorOutput = startupInfo.ErrorOutput;
+                    startupInfo.ConsoleOutput = null;
+                    startupInfo.ErrorOutput = null;
+                }
+
+                consoleOutput.Peek();
+
+                var waitResult = Kernel32.WaitForSingleObject(processHandle, Kernel32.INFINITE);
+
+                if (waitResult == Kernel32.WAIT_FAILED)
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                if (waitResult == Kernel32.WAIT_TIMEOUT)
+                    throw new TimeoutException("Timed out waiting for process.");
+
+                if (waitResult != Kernel32.WAIT_OBJECT_0)
+                    throw new InvalidOperationException("Unexpected wait result.");
+
+                int exitCode;
+
+                if (!Kernel32.GetExitCodeProcess(processHandle, out exitCode))
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                
+                MemoryStream consoleStore = ReadStreamToMemoryStream(consoleOutput.BaseStream);
+                MemoryStream errorStore = ReadStreamToMemoryStream(errorOutput.BaseStream);
+
+                consoleStore.Seek(0, SeekOrigin.Begin);
+                errorStore.Seek(0, SeekOrigin.Begin);
 
                 newLine = Environment.NewLine;
 
-                var result = new ConsoleApplicationResultStreams(process.StandardOutput, process.StandardError, process.ExitCode);
-
-                return result;
+                return new ConsoleApplicationResultStreams(new StreamReader(consoleStore), new StreamReader(errorStore), exitCode);
             }
         }
 
-        public static ConsoleApplicationResultStreams RunNoninteractiveConsoleProcessForStreamsWithManagedCode(string commandArguments, out string newLine)
+        private static MemoryStream ReadStreamToMemoryStream(Stream inputStream)
         {
-            var consoleStream = new MemoryStream();
-            var errorStream = new MemoryStream();
+            int bytesRead = 0;
+            var buffer = new byte[4096];
 
-            string command = commandArguments;
+            MemoryStream result = new MemoryStream();
 
-            if (command.Contains(" "))
+            do
             {
-                var index = command.IndexOf(" ");
-                commandArguments = commandArguments.Substring(index + 1);
-                command = command.Substring(0, index);
-            }
+                IAsyncResult asyncRead = inputStream.BeginRead(buffer, 0, buffer.Length, null, null);
 
-            try
-            {
-                using (var consoleWriter = new NonclosingStreamWriter(consoleStream))
-                using (var errorWriter = new NonclosingStreamWriter(errorStream))
+                if (asyncRead.AsyncWaitHandle.WaitOne(250))
                 {
-                    ProcessStartInfo psi = new ProcessStartInfo();
-
-                    psi.FileName = command;
-                    psi.UseShellExecute = false;
-                    psi.RedirectStandardError = true;
-                    psi.RedirectStandardOutput = true;
-                    psi.CreateNoWindow = true;
-
-                    psi.Arguments = commandArguments;
-
-                    using (var process = Process.Start(psi))
-                    {
-                        try
-                        {
-                            process.OutputDataReceived += delegate(object sendingProcess, DataReceivedEventArgs errorEvent)
-                            {
-                                consoleWriter.WriteLine(errorEvent.Data);
-                            };
-
-                            process.ErrorDataReceived += delegate(object sendingProcess, DataReceivedEventArgs errorEvent)
-                            {
-                                errorWriter.WriteLine(errorEvent.Data);
-                            };
-
-                            process.BeginOutputReadLine();
-                            process.BeginErrorReadLine();
-
-                            process.WaitForExit();
-                        }
-                        catch (Exception e)
-                        {
-                            process.Kill();
-                        }
-
-                        process.WaitForExit();
-
-                        consoleWriter.Flush();
-                        errorWriter.Flush();
-
-                        consoleStream.Seek(0, SeekOrigin.Begin);
-                        errorStream.Seek(0, SeekOrigin.Begin);
-
-                        var result = new ConsoleApplicationResultStreams(new StreamReader(consoleStream), new StreamReader(errorStream), process.ExitCode);
-                        consoleStream = null;
-                        errorStream = null;
-
-                        newLine = consoleWriter.NewLine;
-
-                        return result;
-                    }
+                    bytesRead = inputStream.EndRead(asyncRead);
+                    result.Write(buffer, 0, bytesRead);
                 }
-            }
-            finally
-            {
-                if (consoleStream != null)
-                    consoleStream.Dispose();
 
-                if (errorStream != null)
-                    errorStream.Dispose();
-            }
-
+                Console.WriteLine("read bytes: " + bytesRead);
+            } while (bytesRead == buffer.Length);
+            return result;
         }
     }
 }

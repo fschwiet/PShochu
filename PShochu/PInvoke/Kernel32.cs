@@ -38,5 +38,19 @@ namespace PShochu.PInvoke
 
         [DllImport("kernel32.dll")]
         public static extern int GetConsoleOutputCP();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern Int32 WaitForSingleObject(IntPtr Handle, UInt32 Wait);
+
+        public const UInt32 INFINITE = 0xFFFFFFFF;
+
+        public const UInt32 WAIT_ABANDONED = 0x00000080;
+        public const UInt32 WAIT_OBJECT_0 = 0x00000000;
+        public const UInt32 WAIT_TIMEOUT = 0x00000102;
+        public const UInt32 WAIT_FAILED = 0xFFFFFFFF;
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetExitCodeProcess(IntPtr hProcess, out int lpExitCode);
     }
 }

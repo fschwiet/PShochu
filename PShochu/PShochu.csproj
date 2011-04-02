@@ -42,12 +42,12 @@
   <ItemGroup>
     <Compile Include="ConsoleApplicationResult.cs" />
     <Compile Include="ConsoleApplicationResultStreams.cs" />
+    <Compile Include="ManagedProcessHandling.cs" />
     <Compile Include="PInvoke\AdvApi32PInvoke.cs" />
     <Compile Include="PInvoke\Constants.cs" />
     <Compile Include="PInvoke\ErrorCodes.cs" />
     <Compile Include="PInvoke\Kernel32.cs" />
     <Compile Include="PInvoke\NetWrappers\AccessToken.cs" />
-    <Compile Include="PInvoke\NetWrappers\ProcessUtil.cs" />
     <Compile Include="PInvoke\NetWrappers\StartupInfoWithOutputStreams.cs" />
     <Compile Include="PInvoke\Win32Pipe.cs" />
     <Compile Include="ProcessHandling.cs" />

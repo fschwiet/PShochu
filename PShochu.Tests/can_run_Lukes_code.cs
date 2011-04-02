@@ -18,25 +18,7 @@ namespace PShochu.Tests
             {
                 var hToken = AccessToken.GetCurrentAccessToken();
 
-                //if(!AdvApi32PInvoke.OpenProcessToken(Kernel32.GetCurrentProcess(), AdvApi32PInvoke.TOKEN_DUPLICATE, out hToken))
-                //{
-                //    throw new Win32Exception(Marshal.GetLastWin32Error());
-                //}
-
                 IntPtr hDuplicate = AccessToken.DuplicateTokenAsPrimaryToken(hToken).DangerousGetHandle();
-
-
-                //if (!AdvApi32PInvoke.DuplicateTokenEx(hToken.DangerousGetHandle(),
-                //    AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY |
-                //    AdvApi32PInvoke.TOKEN_DUPLICATE |
-                //    AdvApi32PInvoke.TOKEN_QUERY |
-                //    AdvApi32PInvoke.TOKEN_ADJUST_DEFAULT |
-                //    AdvApi32PInvoke.TOKEN_ADJUST_SESSIONID,
-                //    Constants.NULL, AdvApi32PInvoke.SECURITY_IMPERSONATION_LEVEL.SecurityImpersonation,
-                //    AdvApi32PInvoke.TOKEN_TYPE.TokenPrimary, out hDuplicate))
-                //{
-                //    throw new Win32Exception(Marshal.GetLastWin32Error());
-                //}
 
                 string commandLine = ("powershell");
 

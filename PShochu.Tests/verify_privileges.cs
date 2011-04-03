@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Principal;
-using System.Text;
 using NJasmine;
+using NUnit.Framework;
 using PShochu.PInvoke;
 using PShochu.PInvoke.NetWrappers;
 
 namespace PShochu.Tests
 {
+    [Explicit]
     public class verify_privileges : GivenWhenThenFixture
     {
         public override void Specify()
@@ -76,7 +76,6 @@ namespace PShochu.Tests
             privilegeSet.Privilege[0].Luid = luid;
             privilegeSet.Privilege[0].Attributes = AdvApi32PInvoke.LUID_AND_ATTRIBUTES.SE_PRIVILEGE_REMOVED;
 
-            Console.WriteLine(luid.LowPart + " " + luid.HighPart);
             bool privilegeCheckResult;
 
             bool executionResult = AdvApi32PInvoke.PrivilegeCheck(currentUserToken.DangerousGetHandle(),

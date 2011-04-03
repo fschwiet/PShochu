@@ -105,8 +105,6 @@ namespace PShochu
                     bytesRead = inputStream.EndRead(asyncRead);
                     result.Write(buffer, 0, bytesRead);
                 }
-
-                Console.WriteLine("read bytes: " + bytesRead);
             } while (bytesRead == buffer.Length);
             return result;
         }

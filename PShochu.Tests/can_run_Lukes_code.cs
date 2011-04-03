@@ -16,21 +16,27 @@ namespace PShochu.Tests
         {
             it("can run code like Luke's code", delegate
             {
-                var hToken = AccessToken.GetCurrentAccessToken();
-
-                IntPtr hDuplicate = AccessToken.DuplicateTokenAsPrimaryToken(hToken).DangerousGetHandle();
-
-                string commandLine = ("powershell");
-
-                var startupInfo = StartupInfoWithOutputStreams.Create();
-
-                AdvApi32PInvoke.PROCESS_INFORMATION processInformation = new AdvApi32PInvoke.PROCESS_INFORMATION();
-
-                if (!AdvApi32PInvoke.CreateProcessWithTokenW(hDuplicate,
-                        AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE, null, commandLine, 0, Constants.NULL,
-                        Constants.NULL, ref startupInfo.STARTUP_INFO, out processInformation))
+                using(SafeHandle hToken = AccessToken.GetCurrentAccessToken())
                 {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    IntPtr hDuplicate = AccessToken.DuplicateTokenAsPrimaryToken(hToken).DangerousGetHandle();
+
+                    string commandLine = ("powershell");
+
+                    var startupInfo = StartupInfoWithOutputStreams.Create();
+
+                    AdvApi32PInvoke.PROCESS_INFORMATION processInformation = new AdvApi32PInvoke.PROCESS_INFORMATION();
+
+                    if (!AdvApi32PInvoke.CreateProcessWithTokenW(hDuplicate,
+                            AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE, null, commandLine, 0, Constants.NULL,
+                            Constants.NULL, ref startupInfo.STARTUP_INFO, out processInformation))
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+
+                    Kernel32.CloseHandle(hDuplicate);
+                    Kernel32.CloseHandle(processInformation.hThread);
+                    Kernel32.TerminateProcess(processInformation.hProcess, 0);
+                    Kernel32.CloseHandle(processInformation.hProcess);                    
                 }
             }); 
             
@@ -44,7 +50,7 @@ namespace PShochu.Tests
                 }
 
                 IntPtr hDuplicate;
-                if (AdvApi32PInvoke.DuplicateTokenEx(hToken,
+                if (!AdvApi32PInvoke.DuplicateTokenEx(hToken,
                     AdvApi32PInvoke.TOKEN_ASSIGN_PRIMARY |
                     AdvApi32PInvoke.TOKEN_DUPLICATE |
                     AdvApi32PInvoke.TOKEN_QUERY |
@@ -53,25 +59,30 @@ namespace PShochu.Tests
                     Constants.NULL, AdvApi32PInvoke.SECURITY_IMPERSONATION_LEVEL.SecurityImpersonation,
                     AdvApi32PInvoke.TOKEN_TYPE.TokenPrimary, out hDuplicate))
                 {
-                    string commandLine = ("powershell");
-
-                    AdvApi32PInvoke.STARTUPINFO startupInfo = new AdvApi32PInvoke.STARTUPINFO();
-                    startupInfo.cb = Marshal.SizeOf(typeof(AdvApi32PInvoke.STARTUPINFO));
-
-                    AdvApi32PInvoke.PROCESS_INFORMATION processInformation =
-                        new AdvApi32PInvoke.PROCESS_INFORMATION();
-                    if (
-                        !AdvApi32PInvoke.CreateProcessWithTokenW(hDuplicate,
-                            AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE, null, commandLine, 0, Constants.NULL,
-                            Constants.NULL, ref startupInfo, out processInformation))
-                    {
-                        throw new Win32Exception(Marshal.GetLastWin32Error());
-                    }
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
-                else
+
+                string commandLine = ("powershell");
+
+                AdvApi32PInvoke.STARTUPINFO startupInfo = new AdvApi32PInvoke.STARTUPINFO();
+                startupInfo.cb = Marshal.SizeOf(typeof(AdvApi32PInvoke.STARTUPINFO));
+
+                AdvApi32PInvoke.PROCESS_INFORMATION processInformation =
+                    new AdvApi32PInvoke.PROCESS_INFORMATION();
+                if (
+                    !AdvApi32PInvoke.CreateProcessWithTokenW(hDuplicate,
+                        AdvApi32PInvoke.LogonFlags.LOGON_WITH_PROFILE, null, commandLine, 0, Constants.NULL,
+                        Constants.NULL, ref startupInfo, out processInformation))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
+
+                Kernel32.CloseHandle(hToken);
+                Kernel32.CloseHandle(hDuplicate);
+                Kernel32.CloseHandle(processInformation.hThread);
+
+                Kernel32.TerminateProcess(processInformation.hProcess, 0);
+                Kernel32.CloseHandle(processInformation.hProcess);
             });
         }
     }
